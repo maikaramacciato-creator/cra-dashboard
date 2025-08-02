@@ -5,14 +5,81 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>CRA Assistant</title>
-<style>
+<.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: left;
+}
+
+.ready-button {
+  width: auto;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.gear-icon {
+  float: right;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.cra-wellness-check {
+  background: linear-gradient(to bottom, #2c3e50, #ecf0f1);
+  padding: 20px;
+  border-radius: 10px;
+  color: #111;
+}
+
+.smart-assistant-link {
+  text-decoration: underline;
+  color: #007bff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.toast {
+  visibility: hidden;
+  min-width: 250px;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 8px;
+}
+
+.toast.show {
+  visibility: visible;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein {
+  from { opacity: 0; bottom: 20px; }
+  to { opacity: 1; bottom: 30px; }
+}
+
+@keyframes fadeout {
+  from { opacity: 1; bottom: 30px; }
+  to { opacity: 0; bottom: 40px; }
+}
+>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
-        body {
+        body<div id="toast" class="toast">Site added</div>
+ {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
@@ -428,7 +495,8 @@
 </div>
 <div id="settings-panel" style="margin-top: 15px;">
 <details style="background: #ecf0f1; padding: 10px 15px; border-radius: 10px; cursor: pointer;">
-<summary style="font-weight: 600; color: #2c3e50;">⚙️ Customize Dashboard</summary>
+<summary style="font-weight: 600; color: #2c3e50;">⚙️ <h3>Customize Dashboard <span class="gear-icon">⚙️</span></h3>
+
 <div style="margin-top: 10px;">
 <label>Time Zone: <input class="form-input" id="timeZone" placeholder="Finland, USA, Europe/Stockholm" type="text"/></label><br/><br/>
 <div style="font-size:12px; color:#7f8c8d; margin-top:5px; margin-bottom:10px;">
@@ -461,7 +529,13 @@
 </div>
 <!-- Wellbeing Card -->
 <div class="wellbeing-card">
-<div class="wellbeing-title">💚 CRA Wellness Check</div>
+<div class="wellbeing-title">💚 CRA Wellness Check</div><p>
+  <a href="#smart-assistant" class="smart-assistant-link">Smart Assistant</a>
+</p>
+<p>
+  Add tasks using the Smart Assistant to see priorities here automatically.
+</p>
+
 <div class="wellbeing-message" id="wellbeing-message">
 Welcome to your clean, error‑free CRA workspace! Real‑time time zones and persistent data storage.
 </div>
@@ -929,7 +1003,8 @@ function addTask() {
     const selectedCategory = document.getElementById('task-category') ? document.getElementById('task-category').value : '';
     
     if (!site || !description) {
-        alert('Please fill in Site and Task description');
+        showToast("Site added successfully");
+
         return;
     }
     
@@ -1845,7 +1920,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-<script>
+<script>function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.className = "toast show";
+  setTimeout(() => {
+    toast.className = toast.className.replace("show", "");
+  }, 3000);
+}
+
 function classifyTask(description) {
     // Map keywords to categories.  These categories follow the GCP E6 R3 guidance by
     // grouping tasks into high level areas such as IMP management, Regulatory, Safety,
@@ -2021,7 +2104,10 @@ function deleteTemplate(id) {
     saveData();
 }
 
-// Use a template by filling the Smart Assistant input with its content
+// Use a template by filling the Smart Assistant input with its content <div id="smart-assistant">
+  <!-- your assistant content -->
+</div>
+
 function useTemplate(id) {
     const tmpl = templatesData.find(t => t.id === id);
     if (tmpl) {
