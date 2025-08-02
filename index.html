@@ -992,38 +992,51 @@ function addTask() {
 
 function addToTaskList(task, displaySite) {
     try {
+        if (!task || !task.id || !task.description) {
+            console.error('Invalid task data:', task);
+            return;
+        }
+        
         const taskList = document.getElementById('all-tasks');
-        if (!taskList) return;
+        if (!taskList) {
+            console.error('Task list element not found');
+            return;
+        }
         
         const emptyState = taskList.querySelector('.empty-state');
         if (emptyState) {
             emptyState.remove();
         }
         
-        const siteDisplay = displaySite === 'all' ? 'All Sites' : `Site ${task.site}`;
-        const priorityLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+        const siteDisplay = displaySite === 'all' ? 'All Sites' : `Site ${task.site || 'Unknown'}`;
+        const priorityLabel = task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Low';
         const categoryLabel = task.category || 'General';
         
         const taskItem = document.createElement('div');
-        taskItem.className = `task-item ${task.priority}-priority`;
+        taskItem.className = `task-item ${task.priority || 'low'}-priority`;
         taskItem.setAttribute('data-task-id', task.id);
         if (task.site) {
             taskItem.setAttribute('data-site', task.site);
         }
+        
+        const timeSpentDisplay = (task.timeSpent && task.timeSpent > 0) ? task.timeSpent + 'h' : 'N/A';
+        const dueDateDisplay = task.dueDate || 'No deadline';
         
         taskItem.innerHTML = `
             <div class="task-content">
                 <div class="task-title">${siteDisplay} - ${task.description}</div>
                 <div class="task-details">
                     <span>📂 Category: ${categoryLabel}</span>
-                    <span>📅 Due: ${task.dueDate || 'No deadline'}</span>
-                    <span>⏱️ Time: ${task.timeSpent && task.timeSpent > 0 ? task.timeSpent + 'h' : 'N/A'}</span>
+                    <span>📅 Due: ${dueDateDisplay}</span>
+                    <span>⏱️ Time: ${timeSpentDisplay}</span>
                     <span>⚠️ Priority: ${priorityLabel}</span>
                 </div>
             </div>
             <div class="task-actions">
-                <span class="status-badge status-todo">To Do</span>
-                <button class="action-btn" onclick="markDone(this)">Mark Done</button>
+                <span class="status-badge ${task.status === 'done' ? 'status-done' : 'status-todo'}">${task.status === 'done' ? 'Done' : 'To Do'}</span>
+                <button class="action-btn" onclick="markDone(this)" ${task.status === 'done' ? 'disabled style="background:#95a5a6;"' : ''}>
+                    ${task.status === 'done' ? '✅ Done' : 'Mark Done'}
+                </button>
                 <button class="action-btn" style="background:#2980b9;" onclick="editTask(this)">Edit</button>
                 <button class="action-btn" style="background:#e74c3c;" onclick="deleteTask(this)">Delete</button>
             </div>
@@ -1036,6 +1049,7 @@ function addToTaskList(task, displaySite) {
         }
     } catch (error) {
         console.error('Add to task list error:', error);
+        showToast('Error displaying task');
     }
 }
 
@@ -1201,15 +1215,23 @@ function editTask(button) {
 function updateTaskStats() {
     try {
         const allTasks = [];
-        Object.values(siteData).forEach(site => {
-            if (site.tasks && Array.isArray(site.tasks)) {
-                allTasks.push(...site.tasks);
-            }
-        });
+        
+        // Safely collect all tasks with validation
+        if (siteData && typeof siteData === 'object') {
+            Object.values(siteData).forEach(site => {
+                if (site && site.tasks && Array.isArray(site.tasks)) {
+                    site.tasks.forEach(task => {
+                        if (task && task.id) {
+                            allTasks.push(task);
+                        }
+                    });
+                }
+            });
+        }
         
         const totalTasks = allTasks.length;
-        const highPriority = allTasks.filter(t => t.priority === 'high').length;
-        const completed = allTasks.filter(t => t.status === 'done').length;
+        const highPriority = allTasks.filter(t => t && t.priority === 'high').length;
+        const completed = allTasks.filter(t => t && t.status === 'done').length;
         const thisWeek = totalTasks;
         
         const elements = {
@@ -1220,58 +1242,104 @@ function updateTaskStats() {
         };
         
         Object.entries(elements).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) element.textContent = value;
-        });
-        
-        Object.keys(siteData).forEach(site => {
-            const siteTaskCount = siteData[site].tasks ? siteData[site].tasks.filter(t => t.status !== 'done').length : 0;
-            const dynamicElement = document.getElementById(`site_${site}-tasks`);
-            if (dynamicElement) {
-                dynamicElement.textContent = siteTaskCount;
+            try {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value;
+                }
+            } catch (elementError) {
+                console.error(`Error updating element ${id}:`, elementError);
             }
         });
         
+        // Update site task counts safely
+        if (siteData && typeof siteData === 'object') {
+            Object.keys(siteData).forEach(site => {
+                try {
+                    const siteTaskCount = siteData[site] && siteData[site].tasks 
+                        ? siteData[site].tasks.filter(t => t && t.status !== 'done').length 
+                        : 0;
+                    const dynamicElement = document.getElementById(`site_${site}-tasks`);
+                    if (dynamicElement) {
+                        dynamicElement.textContent = siteTaskCount;
+                    }
+                } catch (siteError) {
+                    console.error(`Error updating site ${site} count:`, siteError);
+                }
+            });
+        }
+        
+        // Update priority list safely
         const priorityList = document.getElementById('priority-list');
         if (priorityList) {
-            const highPriorityTasks = allTasks.filter(t => t.priority === 'high' && t.status !== 'done');
-            
-            if (highPriorityTasks.length > 0) {
-                priorityList.innerHTML = '';
-                highPriorityTasks.forEach(task => {
-                    const taskDiv = document.createElement('div');
-                    taskDiv.className = 'task-item high-priority';
-                    taskDiv.innerHTML = `
-                        <div class="task-content">
-                            <div class="task-title">Site ${task.site} - ${task.description}</div>
-                            <div class="task-details">
-                                <span>📅 Due: ${task.dueDate || 'No deadline'}</span>
-                                <span>⚠️ Priority: High</span>
+            try {
+                const highPriorityTasks = allTasks.filter(t => t && t.priority === 'high' && t.status !== 'done');
+                
+                if (highPriorityTasks.length > 0) {
+                    priorityList.innerHTML = '';
+                    highPriorityTasks.forEach(task => {
+                        try {
+                            const taskDiv = document.createElement('div');
+                            taskDiv.className = 'task-item high-priority';
+                            taskDiv.innerHTML = `
+                                <div class="task-content">
+                                    <div class="task-title">Site ${task.site || 'Unknown'} - ${task.description || 'No description'}</div>
+                                    <div class="task-details">
+                                        <span>📅 Due: ${task.dueDate || 'No deadline'}</span>
+                                        <span>⚠️ Priority: High</span>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <span class="status-badge status-todo">High Priority</span>
+                                </div>
+                            `;
+                            priorityList.appendChild(taskDiv);
+                        } catch (taskError) {
+                            console.error('Error creating priority task element:', taskError);
+                        }
+                    });
+                } else if (totalTasks > 0) {
+                    priorityList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <div class="empty-state-title">No High Priority Tasks</div>
+                            <div class="empty-state-message">
+                                All tasks are under control! High priority items will appear here.
                             </div>
                         </div>
-                        <div class="task-actions">
-                            <span class="status-badge status-todo">High Priority</span>
+                    `;
+                } else {
+                    priorityList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <div class="empty-state-title">No High Priority Tasks</div>
+                            <div class="empty-state-message">
+                                Use the Smart Assistant at the top of the page or add tasks to see priorities here automatically.
+                            </div>
                         </div>
                     `;
-                    priorityList.appendChild(taskDiv);
-                });
-            } else if (totalTasks > 0) {
-                priorityList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🎯</div>
-                        <div class="empty-state-title">No High Priority Tasks</div>
-                        <div class="empty-state-message">
-                            All tasks are under control! High priority items will appear here.
-                        </div>
-                    </div>
-                `;
+                }
+            } catch (priorityError) {
+                console.error('Error updating priority list:', priorityError);
             }
         }
         
-        renderHandover();
-        updateMentalHealthStatus();
+        // Update other components safely
+        try {
+            renderHandover();
+        } catch (handoverError) {
+            console.error('Error rendering handover:', handoverError);
+        }
+        
+        try {
+            updateMentalHealthStatus();
+        } catch (mentalHealthError) {
+            console.error('Error updating mental health status:', mentalHealthError);
+        }
+        
     } catch (error) {
         console.error('Update task stats error:', error);
+        showToast('Error updating statistics');
     }
 }
 
@@ -1427,35 +1495,52 @@ function addSiteOption(siteNumber) {
 
 function addToSiteTaskList(task, siteNumber) {
     try {
+        if (!task || !task.id || !task.description || !siteNumber) {
+            console.error('Invalid task or site data:', { task, siteNumber });
+            return;
+        }
+        
         const list = document.getElementById(`site_${siteNumber}-task-list`);
-        if (!list) return;
+        if (!list) {
+            console.error(`Site task list not found for site ${siteNumber}`);
+            return;
+        }
+        
         const emptyState = list.querySelector('.empty-state');
         if (emptyState) {
             emptyState.remove();
         }
-        const priorityLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+        
+        const priorityLabel = task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Low';
         const categoryLabel = task.category || 'General';
+        const timeSpentDisplay = (task.timeSpent && task.timeSpent > 0) ? task.timeSpent + 'h' : 'N/A';
+        const dueDateDisplay = task.dueDate || 'No deadline';
+        
         const item = document.createElement('div');
-        item.className = `task-item ${task.priority}-priority`;
+        item.className = `task-item ${task.priority || 'low'}-priority`;
         item.setAttribute('data-task-id', task.id);
         item.setAttribute('data-site', siteNumber);
+        
         item.innerHTML = `
             <div class="task-content">
                 <div class="task-title">${task.description}</div>
                 <div class="task-details">
                     <span>📂 Category: ${categoryLabel}</span>
-                    <span>📅 Due: ${task.dueDate || 'No deadline'}</span>
-                    <span>⏱️ Time: ${task.timeSpent && task.timeSpent > 0 ? task.timeSpent + 'h' : 'N/A'}</span>
+                    <span>📅 Due: ${dueDateDisplay}</span>
+                    <span>⏱️ Time: ${timeSpentDisplay}</span>
                     <span>⚠️ Priority: ${priorityLabel}</span>
                 </div>
             </div>
             <div class="task-actions">
-                <span class="status-badge status-todo">To Do</span>
-                <button class="action-btn" onclick="markDone(this)">Mark Done</button>
+                <span class="status-badge ${task.status === 'done' ? 'status-done' : 'status-todo'}">${task.status === 'done' ? 'Done' : 'To Do'}</span>
+                <button class="action-btn" onclick="markDone(this)" ${task.status === 'done' ? 'disabled style="background:#95a5a6;"' : ''}>
+                    ${task.status === 'done' ? '✅ Done' : 'Mark Done'}
+                </button>
                 <button class="action-btn" style="background:#2980b9;" onclick="editTask(this)">Edit</button>
                 <button class="action-btn" style="background:#e74c3c;" onclick="deleteTask(this)">Delete</button>
             </div>
         `;
+        
         if (task.priority === 'high') {
             list.insertBefore(item, list.firstChild);
         } else {
@@ -1463,6 +1548,7 @@ function addToSiteTaskList(task, siteNumber) {
         }
     } catch (error) {
         console.error('Error adding task to site list:', error);
+        showToast('Error displaying site task');
     }
 }
 
@@ -1792,13 +1878,32 @@ function loadData() {
         const savedData = localStorage.getItem('craSystemData');
         if (savedData) {
             const data = JSON.parse(savedData);
-            siteData = data.siteData || {};
-            taskCounter = data.taskCounter || 0;
-            templatesData = data.templatesData || [];
-            currentTimeZone = data.currentTimeZone || 'Europe/Stockholm';
+            // Only load data if it exists and is valid
+            if (data && typeof data === 'object') {
+                siteData = data.siteData && typeof data.siteData === 'object' ? data.siteData : {};
+                taskCounter = typeof data.taskCounter === 'number' ? data.taskCounter : 0;
+                templatesData = Array.isArray(data.templatesData) ? data.templatesData : [];
+                currentTimeZone = typeof data.currentTimeZone === 'string' ? data.currentTimeZone : 'Europe/Stockholm';
+            }
+        }
+        
+        // Ensure we start with no pre-populated sites if no valid data exists
+        if (!siteData || typeof siteData !== 'object') {
+            siteData = {};
+        }
+        if (!Array.isArray(templatesData)) {
+            templatesData = [];
+        }
+        if (typeof taskCounter !== 'number') {
+            taskCounter = 0;
         }
     } catch (error) {
-        console.error('Load error:', error);
+        console.error('Load data error:', error);
+        // Reset to clean state if data is corrupted
+        siteData = {};
+        taskCounter = 0;
+        templatesData = [];
+        currentTimeZone = 'Europe/Stockholm';
     }
 }
 
@@ -2037,18 +2142,34 @@ function initializeSystem() {
     try {
         console.log('Initializing Clean CRA System...');
         
+        // Load saved data but DON'T auto-create any sites
         loadData();
-        removeLegacySiteElements();
-        initializeSites();
         
-        Object.keys(siteData).forEach(site => {
-            if (siteData[site].tasks && Array.isArray(siteData[site].tasks)) {
-                siteData[site].tasks.forEach(task => {
-                    addToTaskList(task, site);
-                    addToSiteTaskList(task, site);
-                });
-            }
-        });
+        // Remove any leftover static site markup from older versions
+        removeLegacySiteElements();
+        
+        // Only initialize sites that exist in saved data - don't create any new ones
+        const savedSites = Object.keys(siteData || {});
+        if (savedSites.length > 0) {
+            savedSites.forEach(siteNumber => {
+                // Only restore if site actually has data
+                if (siteData[siteNumber]) {
+                    ensureSiteExists(siteNumber);
+                }
+            });
+            
+            // Restore tasks into the global and site‑specific lists
+            savedSites.forEach(site => {
+                if (siteData[site] && siteData[site].tasks && Array.isArray(siteData[site].tasks)) {
+                    siteData[site].tasks.forEach(task => {
+                        if (task && task.id && task.description) {
+                            addToTaskList(task, site);
+                            addToSiteTaskList(task, site);
+                        }
+                    });
+                }
+            });
+        }
         
         updateTaskStats();
         renderTemplates();
@@ -2061,10 +2182,14 @@ function initializeSystem() {
         const timeZoneInput = document.getElementById('timeZone');
         if (timeZoneInput) {
             timeZoneInput.addEventListener('input', function(e) {
-                const inputValue = e.target.value.trim().toLowerCase();
-                if (inputValue) {
-                    currentTimeZone = timeZoneMap[inputValue] || inputValue;
-                    updateTime();
+                try {
+                    const inputValue = e.target.value.trim().toLowerCase();
+                    if (inputValue) {
+                        currentTimeZone = timeZoneMap[inputValue] || inputValue;
+                        updateTime();
+                    }
+                } catch (error) {
+                    console.error('Timezone input error:', error);
                 }
             });
         }
@@ -2072,8 +2197,12 @@ function initializeSystem() {
         const commandInput = document.getElementById('command-input');
         if (commandInput) {
             commandInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    processCommand();
+                try {
+                    if (e.key === 'Enter') {
+                        processCommand();
+                    }
+                } catch (error) {
+                    console.error('Command input error:', error);
                 }
             });
         }
@@ -2084,12 +2213,16 @@ function initializeSystem() {
         const categorySelect = document.getElementById('task-category');
         if (descInput && categorySelect) {
             descInput.addEventListener('blur', function() {
-                const text = descInput.value.trim();
-                if (text) {
-                    const cls = classifyTask(text);
-                    if (cls && cls.category) {
-                        categorySelect.value = cls.category;
+                try {
+                    const text = descInput.value ? descInput.value.trim() : '';
+                    if (text) {
+                        const cls = classifyTask(text);
+                        if (cls && cls.category) {
+                            categorySelect.value = cls.category;
+                        }
                     }
+                } catch (error) {
+                    console.error('Task description blur error:', error);
                 }
             });
         }
@@ -2099,6 +2232,14 @@ function initializeSystem() {
         console.log('Clean CRA System initialized successfully!');
     } catch (error) {
         console.error('Initialization error:', error);
+        // Still show a toast even if initialization fails
+        setTimeout(() => {
+            try {
+                showToast('System initialized with some errors - check console');
+            } catch (toastError) {
+                console.error('Toast error during init:', toastError);
+            }
+        }, 1000);
     }
 }
 
