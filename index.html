@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRA Assistant</title>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .work-info {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+            flex-wrap: wrap;
+        }
+        
+        .data-status {
+            background: #e8f5e8;
+            color: #2d6a2d;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .tab-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+            font-size: 13px;
+        }
+        
+        .tab-button:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .tab-button.active {
+            background: #2c3e50;
+            box-shadow: 0 3px 12px rgba(44, 62, 80, 0.4);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+        }
+        
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state-message {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .priority-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3498db;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        .task-list {
+            margin-top: 20px;
+        }
+        
+        .task-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            border-left: 4px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .task-item.high-priority {
+            border-left-color: #e74c3c;
+            background: #fdf2f2;
+        }
+        
+        .task-item.medium-priority {
+            border-left-color: #f39c12;
+            background: #fef9e7;
+        }
+        
+        .task-item.low-priority {
+            border-left-color: #27ae60;
+            background: #eafaf1;
+        }
+        
+        .task-content {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .task-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .task-details {
+            font-size: 13px;
+            color: #7f8c8d;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .status-badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .status-todo {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-done {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .action-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .action-btn:hover {
+            background: #219a52;
+            transform: translateY(-1px);
+        }
+        
+        .action-btn.secondary {
+            background: #95a5a6;
+        }
+        
+        .action-btn.secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .wellbeing-card {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .wellbeing-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .wellbeing-message {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .site-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .site-info-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .info-value.editable:hover {
+            background-color: #f8f9fa;
+            border: 1px dashed #3498db;
+        }
+        
+        .quick-add-task {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-add-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .form-input {
+            padding: 8px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .add-task-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .add-task-btn:hover {
+            background: #219a52;
+        }
+        
+        .time-display {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .work-hours-status {
+            margin-left: 10px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .work-hours-active {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .work-hours-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+            
+            .work-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .task-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .task-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-header">
+<h1>🏥 Enhanced CRA Management System v4</h1>
+<p id="site-header"><strong>Sites:</strong> None — add your sites using the button below</p>
+<div class="work-info">
+<span>🇸🇪 Based: Sweden</span>
+<span>🤝 Team: Finland</span>
+<span>🎯 Sponsor: Switzerland</span>
+<span class="time-display" id="current-time">⏰ Loading...</span>
+<span class="data-status" id="data-status">💾 Ready</span>
+</div>
+<div id="settings-panel" style="margin-top: 15px;">
+<details style="background: #ecf0f1; padding: 10px 15px; border-radius: 10px; cursor: pointer;">
+<summary style="font-weight: 600; color: #2c3e50;">⚙️ Customize Dashboard</summary>
+<div style="margin-top: 10px;">
+<label>Time Zone: <input class="form-input" id="timeZone" placeholder="Finland, USA, Europe/Stockholm" type="text"/></label><br/><br/>
+<div style="font-size:12px; color:#7f8c8d; margin-top:5px; margin-bottom:10px;">
+    Supported time zones include: Finland (Europe/Helsinki), Sweden (Europe/Stockholm), Norway (Europe/Oslo), USA (America/New_York), UK (Europe/London), and Germany (Europe/Berlin). You may also enter any valid IANA time zone.
+</div>
+<label>CRA Country: <input class="form-input" id="craCountry" placeholder="Sweden" type="text"/></label><br/><br/>
+<label>Team Country: <input class="form-input" id="teamCountry" placeholder="Finland" type="text"/></label><br/><br/>
+<button class="add-task-btn" onclick="applySettings()">💾 Apply Settings</button>
+</div>
+</details>
+</div>
+</div><div class="tabs" id="site-tabs"><button class="tab-button" onclick="addCustomSiteDynamic()" style="background:#2ecc71; font-weight:600;">➕ Add Site</button></div>
+<!-- Smart Assistant -->
+<div class="content-card" style="margin-bottom: 20px;">
+<div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+<span style="font-weight: 600; color: #2c3e50;">🤖 Smart CRA Assistant:</span>
+<input id="command-input" placeholder="Try: 'site 2302 next visit Sept 4', 'all sites newsletter filing'" style="flex: 1; min-width: 300px; padding: 8px 12px; border: 1px solid #bdc3c7; border-radius: 6px;" type="text"/>
+<button class="action-btn" onclick="processCommand()" style="background: #9b59b6;">🚀 Process</button>
+<button class="action-btn" onclick="resetData()" style="background: #e74c3c;">🔄 Reset</button>
+</div>
+<div style="margin-top: 10px; font-size: 12px; color: #7f8c8d;">
+<strong>Real-time time zones!</strong> Auto-categorizes tasks by CRA requirements. Data saves automatically.
+</div>
+</div>
+<div class="tabs">
+<button class="tab-button active" onclick="showTab(event, 'priorities')">🎯 Priorities</button>
+<button class="tab-button" onclick="showTab(event, 'tasks')">📋 Tasks</button>
+<button class="tab-button" onclick="showTab(event, 'templates')">📑 Templates</button>
+<button class="tab-button" onclick="showTab(event, 'handover')">📤 Handover</button>
+</div>
+<!-- Wellbeing Card -->
+<div class="wellbeing-card">
+<div class="wellbeing-title">💚 CRA Wellness Check</div>
+<div class="wellbeing-message" id="wellbeing-message">
+Welcome to your clean, error‑free CRA workspace! Real‑time time zones and persistent data storage.
+</div>
+<!-- Mental health status will be updated dynamically based on workload -->
+<div id="mental-health-status" class="mental-health-status" style="margin-top:10px; font-size:14px; color:#34495e;"></div>
+</div>
+<!-- Priorities Tab -->
+<div class="tab-content active" id="priorities">
+<div class="content-card">
+<div class="card-title">🎯 Today's Priorities</div>
+<div class="priority-stats">
+<div class="stat-card">
+<span class="stat-number" id="total-tasks">0</span>
+<div class="stat-label">Total Tasks</div>
+</div>
+<div class="stat-card">
+<span class="stat-number" id="high-priority">0</span>
+<div class="stat-label">High Priority</div>
+</div>
+<div class="stat-card">
+<span class="stat-number" id="completed-tasks">0</span>
+<div class="stat-label">Completed</div>
+</div>
+<div class="stat-card">
+<span class="stat-number" id="this-week">0</span>
+<div class="stat-label">This Week</div>
+</div>
+</div>
+<div class="task-list" id="priority-list">
+<div class="empty-state">
+<div class="empty-state-icon">🎯</div>
+<div class="empty-state-title">No High Priority Tasks</div>
+<div class="empty-state-message">
+Add tasks using the Smart Assistant to see priorities here automatically.
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Tasks Tab -->
+<div class="tab-content" id="tasks">
+<div class="content-card">
+<div class="card-title">📋 Task Management</div>
+<div class="quick-add-task">
+<div class="quick-add-title">🚀 Quick Add Task</div>
+        <div class="input-group">
+            <select class="form-select" id="task-site">
+                <option value="">Select Site</option>
+                <option value="all">🌐 All Sites</option>
+            </select>
+            <input class="form-input" id="task-description" placeholder="Task description" style="flex: 2;" type="text"/>
+            <input class="form-input" id="task-due-date" type="date"/>
+            <!-- Time spent field allows you to record how many hours were spent on the task (e.g. 0.5, 1.0, 0.75). -->
+            <input class="form-input" id="task-time-spent" type="number" step="0.25" min="0" placeholder="Hrs spent" style="width:90px;"/>
+            <!-- Category dropdown allows users to override the automatic classification.  Leave blank to use the suggested category. -->
+            <select class="form-select" id="task-category">
+                <option value="">Auto (Based on description)</option>
+                <option value="IMP Management">IMP Management</option>
+                <option value="Safety">Safety</option>
+                <option value="Regulatory">Regulatory</option>
+                <option value="Documentation">Documentation</option>
+                <option value="Monitoring">Monitoring</option>
+                <option value="Vendor Oversight">Vendor Oversight</option>
+                <option value="Data Integrity">Data Integrity</option>
+                <option value="Other">Other</option>
+            </select>
+            <select class="form-select" id="task-priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+<button class="add-task-btn" onclick="addTask()">Add Task</button>
+</div>
+<div class="task-list" id="all-tasks">
+<div class="empty-state">
+<div class="empty-state-icon">📋</div>
+<div class="empty-state-title">No Tasks Yet</div>
+<div class="empty-state-message">
+Use the Smart CRA Assistant or Quick Add form to create your first task!
+</div>
+</div>
+</div>
+<!-- Templates Tab (hidden within tasks for legacy) -->
+<div class="tab-content" id="templates_hidden" style="display:none;">
+    <div class="content-card">
+        <div class="card-title">📑 Templates</div>
+        <div>
+            <div style="margin-bottom:10px; font-weight: 600;">Create New Template</div>
+            <input id="template-name-hidden" class="form-input" placeholder="Template name" style="margin-bottom: 5px; width:100%;"/>
+            <select id="template-type-hidden" class="form-select" style="margin-bottom: 5px;">
+                <option value="Email">Email</option>
+                <option value="Form">Form</option>
+                <option value="Other">Other</option>
+            </select>
+            <textarea id="template-content-hidden" class="form-input" placeholder="Template content" style="margin-bottom: 5px; width:100%; height:100px;"></textarea>
+            <button class="add-task-btn" onclick="saveTemplate()">Save Template</button>
+        </div>
+        <div style="margin-top:20px;">
+            <div style="margin-bottom: 10px; font-weight: 600;">Saved Templates</div>
+            <div id="template-list-hidden" class="task-list">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📑</div>
+                    <div class="empty-state-title">No Templates Yet</div>
+                    <div class="empty-state-message">
+                        Create templates for emails, forms or other content. They will appear here.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Handover Tab (hidden within tasks for legacy) -->
+<div class="tab-content" id="handover_hidden" style="display:none;">
+    <div class="content-card">
+        <div class="card-title">📤 Handover</div>
+        <div id="handover-content-hidden"></div>
+        <button class="add-task-btn" id="generate-handover-btn-hidden" onclick="generateHandover()" style="display:none; margin-top:15px;">Generate Handover File</button>
+    </div>
+</div>
+</div>
+</div>
+<!-- Site Tabs -->
+<!-- Templates Tab -->
+<div class="tab-content" id="templates">
+    <div class="content-card">
+        <div class="card-title">📑 Templates</div>
+        <div>
+            <div style="margin-bottom:10px; font-weight: 600;">Create New Template</div>
+            <input id="template-name" class="form-input" placeholder="Template name" style="margin-bottom: 5px; width:100%;"/>
+            <select id="template-type" class="form-select" style="margin-bottom: 5px;">
+                <option value="Email">Email</option>
+                <option value="Form">Form</option>
+                <option value="Other">Other</option>
+            </select>
+            <!-- Describe the difference between template types so users know when to choose Email, Form or Other -->
+            <div style="font-size:13px; color:#7f8c8d; margin-bottom:5px;">
+                <strong>Template Types:</strong><br/>
+                <strong>Email</strong> – Ideal for recurring email messages (include subject and body).<br/>
+                <strong>Form</strong> – Use for structured documents or forms you need to fill repeatedly.<br/>
+                <strong>Other</strong> – Any other reusable text snippet (e.g., call notes or SOPs).
+            </div>
+            <textarea id="template-content" class="form-input" placeholder="Template content" style="margin-bottom: 5px; width:100%; height:100px;"></textarea>
+            <!-- Visible Save Template button with explicit ID for reliable event binding -->
+            <button class="add-task-btn" id="save-template-btn">Save Template</button>
+        </div>
+        <div style="margin-top:20px;">
+            <div style="margin-bottom: 10px; font-weight: 600;">Saved Templates</div>
+            <div id="template-list" class="task-list">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📑</div>
+                    <div class="empty-state-title">No Templates Yet</div>
+                    <div class="empty-state-message">
+                        Create templates for emails, forms or other content. They will appear here.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Handover Tab -->
+<div class="tab-content" id="handover">
+    <div class="content-card">
+        <div class="card-title">📤 Handover</div>
+        <div id="handover-content"></div>
+        <button class="add-task-btn" id="generate-handover-btn" onclick="generateHandover()" style="display:none; margin-top:15px;">Generate Handover File</button>
+    </div>
+</div>
+<div class="tab-content" id="site2302">
+<div class="content-card">
+<div class="card-title">🏥 Site 2302 Overview</div>
+<div class="site-info-grid">
+<div class="site-info-item">
+<div class="info-label">Last Visit</div>
+<div class="info-value editable" onclick="editVisit('2302', 'last')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Next Visit</div>
+<div class="info-value editable" onclick="editVisit('2302', 'next')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Open Tasks</div>
+<div class="info-value" id="site2302-tasks">0</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Status</div>
+<div class="info-value">🟢 Active</div>
+</div>
+</div>
+<div class="empty-state">
+<div class="empty-state-icon">🏥</div>
+<div class="empty-state-title">Site 2302 Ready</div>
+<div class="empty-state-message">
+Use Smart Assistant: "site 2302 next visit Sept 4" or "last visit 2302 2 weeks ago"
+</div>
+</div>
+</div>
+</div>
+<div class="tab-content" id="site2304">
+<div class="content-card">
+<div class="card-title">🏥 Site 2304 Overview</div>
+<div class="site-info-grid">
+<div class="site-info-item">
+<div class="info-label">Last Visit</div>
+<div class="info-value editable" onclick="editVisit('2304', 'last')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Next Visit</div>
+<div class="info-value editable" onclick="editVisit('2304', 'next')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Open Tasks</div>
+<div class="info-value" id="site2304-tasks">0</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Status</div>
+<div class="info-value">🟢 Active</div>
+</div>
+</div>
+<div class="empty-state">
+<div class="empty-state-icon">🏥</div>
+<div class="empty-state-title">Site 2304 Ready</div>
+<div class="empty-state-message">
+Use Smart Assistant: "site 2304 next visit Sept 4" or "last visit 2304 2 weeks ago"
+</div>
+</div>
+</div>
+</div>
+<div class="tab-content" id="site2306">
+<div class="content-card">
+<div class="card-title">🏥 Site 2306 Overview</div>
+<div class="site-info-grid">
+<div class="site-info-item">
+<div class="info-label">Last Visit</div>
+<div class="info-value editable" onclick="editVisit('2306', 'last')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Next Visit</div>
+<div class="info-value editable" onclick="editVisit('2306', 'next')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Open Tasks</div>
+<div class="info-value" id="site2306-tasks">0</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Status</div>
+<div class="info-value">🟢 Active</div>
+</div>
+</div>
+<div class="empty-state">
+<div class="empty-state-icon">🏥</div>
+<div class="empty-state-title">Site 2306 Ready</div>
+<div class="empty-state-message">
+Use Smart Assistant: "site 2306 next visit Sept 4" or "last visit 2306 2 weeks ago"
+</div>
+</div>
+</div>
+</div>
+<div class="tab-content" id="site2307">
+<div class="content-card">
+<div class="card-title">🏥 Site 2307 Overview</div>
+<div class="site-info-grid">
+<div class="site-info-item">
+<div class="info-label">Last Visit</div>
+<div class="info-value editable" onclick="editVisit('2307', 'last')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Next Visit</div>
+<div class="info-value editable" onclick="editVisit('2307', 'next')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Open Tasks</div>
+<div class="info-value" id="site2307-tasks">0</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Status</div>
+<div class="info-value">🟢 Active</div>
+</div>
+</div>
+<div class="empty-state">
+<div class="empty-state-icon">🏥</div>
+<div class="empty-state-title">Site 2307 Ready</div>
+<div class="empty-state-message">
+Use Smart Assistant: "site 2307 next visit Sept 4" or "last visit 2307 2 weeks ago"
+</div>
+</div>
+</div>
+</div>
+<div class="tab-content" id="site2309">
+<div class="content-card">
+<div class="card-title">🏥 Site 2309 Overview</div>
+<div class="site-info-grid">
+<div class="site-info-item">
+<div class="info-label">Last Visit</div>
+<div class="info-value editable" onclick="editVisit('2309', 'last')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Next Visit</div>
+<div class="info-value editable" onclick="editVisit('2309', 'next')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Open Tasks</div>
+<div class="info-value" id="site2309-tasks">0</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Status</div>
+<div class="info-value">🟢 Active</div>
+</div>
+</div>
+<div class="empty-state">
+<div class="empty-state-icon">🏥</div>
+<div class="empty-state-title">Site 2309 Ready</div>
+<div class="empty-state-message">
+Use Smart Assistant: "site 2309 next visit Sept 4" or "last visit 2309 2 weeks ago"
+</div>
+</div>
+</div>
+</div>
+<div class="tab-content" id="site2310">
+<div class="content-card">
+<div class="card-title">🏥 Site 2310 Overview</div>
+<div class="site-info-grid">
+<div class="site-info-item">
+<div class="info-label">Last Visit</div>
+<div class="info-value editable" onclick="editVisit('2310', 'last')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Next Visit</div>
+<div class="info-value editable" onclick="editVisit('2310', 'next')">Click to set</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Open Tasks</div>
+<div class="info-value" id="site2310-tasks">0</div>
+</div>
+<div class="site-info-item">
+<div class="info-label">Status</div>
+<div class="info-value">🟢 Active</div>
+</div>
+</div>
+<div class="empty-state">
+<div class="empty-state-icon">🏥</div>
+<div class="empty-state-title">Site 2310 Ready</div>
+<div class="empty-state-message">
+Use Smart Assistant: "site 2310 next visit Sept 4" or "last visit 2310 2 weeks ago"
+</div>
+</div>
+</div>
+</div>
+<script>
+// ===== GLOBAL VARIABLES =====
+let currentTimeZone = 'Europe/Stockholm';
+// Site data will be populated dynamically when the user adds sites.  Each
+// entry has the form { tasks: [], lastVisit: null, nextVisit: null }.
+let siteData = {};
+let taskCounter = 0;
+
+// Templates data store. Holds an array of template objects { id, name, type, content }.
+let templatesData = [];
+
+// Time zone mapping
+const timeZoneMap = {
+    'finland': 'Europe/Helsinki',
+    'sweden': 'Europe/Stockholm', 
+    'norway': 'Europe/Oslo',
+    'usa': 'America/New_York',
+    'uk': 'Europe/London',
+    'germany': 'Europe/Berlin'
+};
+
+// ===== CORE FUNCTIONS =====
+function updateTime() {
+    try {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { 
+            timeZone: currentTimeZone,
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        
+        const hour = parseInt(now.toLocaleString('en-US', {
+            timeZone: currentTimeZone,
+            hour: 'numeric',
+            hour12: false
+        }));
+        
+        const isWorkHours = hour >= 8 && hour <= 16;
+        
+        const timeElement = document.getElementById('current-time');
+        if (timeElement) {
+            timeElement.innerHTML = `⏰ ${timeString} <span class="work-hours-status ${isWorkHours ? 'work-hours-active' : 'work-hours-inactive'}">${isWorkHours ? 'Work Hours' : 'Off Hours'}</span>`;
+        }
+    } catch (error) {
+        console.error('Time update error:', error);
+        const timeElement = document.getElementById('current-time');
+        if (timeElement) {
+            timeElement.textContent = '⏰ Time Error';
+        }
+    }
+}
+
+function showTab(event, tabId) {
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => content.classList.remove('active'));
+    
+    // Remove active from all buttons
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => button.classList.remove('active'));
+    
+    // Show selected tab
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
+    
+    // Activate clicked button
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+    
+    // When switching to templates or handover tab, refresh their content
+    if (tabId === 'templates') {
+        renderTemplates();
+    } else if (tabId === 'handover') {
+        renderHandover();
+    }
+    updateWellbeingMessage(tabId);
+}
+
+function updateWellbeingMessage(tabId) {
+    const wellbeingMessage = document.getElementById('wellbeing-message');
+    if (!wellbeingMessage) return;
+    
+    // Provide default messages for static tabs.  For dynamically created site tabs
+    // we build the message on the fly to avoid hard‑coding site numbers.
+    let message;
+    if (tabId === 'priorities') {
+        message = 'Focus on your top priorities! Clean interface with real-time time zones.';
+    } else if (tabId === 'tasks') {
+        message = 'Building your task system - everything saves automatically!';
+    } else if (tabId && tabId.startsWith('site_')) {
+        const siteNum = tabId.split('_')[1];
+        message = `Site ${siteNum} ready for monitoring visits and task management.`;
+    } else {
+        message = 'Your clean CRA workspace is ready! Take breaks when needed.';
+    }
+    wellbeingMessage.textContent = message;
+}
+
+function addTask() {
+    // Function to add a new task to the system. Handles both site‑specific
+    // tasks and tasks that should be applied to all existing sites. The
+    // implementation ensures that tasks are properly associated with
+    // dynamically created sites and that tasks appear in both the global
+    // task list and the appropriate site‑specific list. Validation is
+    // performed to prevent empty site or description values.
+    const site = document.getElementById('task-site').value;
+    const description = document.getElementById('task-description').value;
+    const dueDate = document.getElementById('task-due-date').value;
+    const priority = document.getElementById('task-priority').value;
+    // User-selected category; if left blank we will fall back to automatic classification
+    const selectedCategory = document.getElementById('task-category') ? document.getElementById('task-category').value : '';
+    
+    if (!site || !description) {
+        alert('Please fill in Site and Task description');
+        return;
+    }
+    
+    taskCounter++;
+    const taskId = 'task_' + Date.now() + '_' + taskCounter;
+    
+    // Use classification to assign a category based on task description. The category helps
+    // group tasks into IMP Management, Safety, Regulatory, etc. according to GCP E6 R3.
+    const classification = classifyTask(description);
+    // Read hours spent on the task; default to 0 if blank
+    let timeSpent = 0;
+    const timeInputEl = document.getElementById('task-time-spent');
+    if (timeInputEl && timeInputEl.value) {
+        const parsed = parseFloat(timeInputEl.value);
+        timeSpent = isNaN(parsed) ? 0 : parsed;
+    }
+    // Determine final category: user selection overrides classification if not blank
+    const finalCategory = selectedCategory || (classification.category || 'General');
+    const taskObject = {
+        id: taskId,
+        site: site,
+        description: description,
+        dueDate: dueDate,
+        priority: priority,
+        category: finalCategory,
+        timeSpent: timeSpent,
+        status: 'todo',
+        created: new Date().toISOString()
+    };
+    
+    // Handle "All Sites" selection dynamically by iterating over current sites.
+    if (site === 'all') {
+        const allSites = Object.keys(siteData);
+        if (allSites.length === 0) {
+            alert('⚠️ No sites available. Please add a site first.');
+            return;
+        }
+        allSites.forEach(siteNumber => {
+            // Ensure the site exists in the data model
+            ensureSiteExists(siteNumber);
+            // Create a unique id for each duplicated task so actions on one site don't affect others
+            const clonedTask = { ...taskObject, id: taskObject.id + '_' + siteNumber, site: siteNumber };
+            siteData[siteNumber].tasks.push(clonedTask);
+            // Update UI for both global and site‑specific task lists
+            addToTaskList(clonedTask, siteNumber);
+            addToSiteTaskList(clonedTask, siteNumber);
+        });
+        alert('✅ Task added to all sites!');
+    } else {
+        // Add to specific site, creating it if necessary
+        ensureSiteExists(site);
+        siteData[site].tasks.push(taskObject);
+        // Update UI
+        addToTaskList(taskObject, site);
+        addToSiteTaskList(taskObject, site);
+        alert('✅ Task added successfully!');
+    }
+    
+    // Clear form
+    document.getElementById('task-site').value = '';
+    document.getElementById('task-description').value = '';
+    document.getElementById('task-due-date').value = '';
+    document.getElementById('task-priority').value = 'low';
+    // Reset category select to default Auto/blank
+    if (document.getElementById('task-category')) {
+        document.getElementById('task-category').value = '';
+    }
+    // Reset time spent field
+    if (document.getElementById('task-time-spent')) {
+        document.getElementById('task-time-spent').value = '';
+    }
+    
+    updateTaskStats();
+    saveData();
+}
+
+function addToTaskList(task, displaySite) {
+    const taskList = document.getElementById('all-tasks');
+    
+    // Remove empty state if exists
+    const emptyState = taskList.querySelector('.empty-state');
+    if (emptyState) {
+        emptyState.remove();
+    }
+    
+    const siteDisplay = displaySite === 'all' ? 'All Sites' : `Site ${task.site}`;
+    const priorityLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+    const categoryLabel = task.category || 'General';
+    
+    const taskItem = document.createElement('div');
+    taskItem.className = `task-item ${task.priority}-priority`;
+    taskItem.setAttribute('data-task-id', task.id);
+    // Tag the task element with its site number so tasks can be removed if a site is deleted
+    if (task.site) {
+        taskItem.setAttribute('data-site', task.site);
+    }
+    
+    taskItem.innerHTML = `
+        <div class="task-content">
+            <div class="task-title">${siteDisplay} - ${task.description}</div>
+            <div class="task-details">
+                <span>📂 Category: ${categoryLabel}</span>
+                <span>📅 Due: ${task.dueDate || 'No deadline'}</span>
+                <span>⏱️ Time: ${task.timeSpent && task.timeSpent > 0 ? task.timeSpent + 'h' : 'N/A'}</span>
+                <span>⚠️ Priority: ${priorityLabel}</span>
+            </div>
+        </div>
+        <div class="task-actions">
+            <span class="status-badge status-todo">To Do</span>
+            <button class="action-btn" onclick="markDone(this)">Mark Done</button>
+            <button class="action-btn" style="background:#2980b9;" onclick="editTask(this)">Edit</button>
+            <button class="action-btn" style="background:#e74c3c;" onclick="deleteTask(this)">Delete</button>
+        </div>
+    `;
+    
+    // Insert based on priority
+    if (task.priority === 'high') {
+        taskList.insertBefore(taskItem, taskList.firstChild);
+    } else {
+        taskList.appendChild(taskItem);
+    }
+}
+
+function markDone(button) {
+    const taskItem = button.closest('.task-item');
+    const taskId = taskItem.getAttribute('data-task-id');
+    
+    // Update status badge and button
+    const statusBadge = taskItem.querySelector('.status-badge');
+    statusBadge.textContent = 'Done';
+    statusBadge.className = 'status-badge status-done';
+    button.textContent = '✅ Done';
+    button.disabled = true;
+    button.style.background = '#95a5a6';
+    
+    // Update in data
+    Object.values(siteData).forEach(site => {
+        const task = site.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.status = 'done';
+        }
+    });
+    
+    updateTaskStats();
+    saveData();
+    alert('✅ Task completed!');
+}
+
+function deleteTask(button) {
+    const taskItem = button.closest('.task-item');
+    const taskTitle = taskItem.querySelector('.task-title').textContent;
+    
+    if (confirm(`⚠️ Delete task: "${taskTitle}"?`)) {
+        const taskId = taskItem.getAttribute('data-task-id');
+        
+        // Remove from data
+        Object.values(siteData).forEach(site => {
+            site.tasks = site.tasks.filter(t => t.id !== taskId);
+        });
+        
+        // Remove from UI
+        taskItem.remove();
+        
+        // Check if task list is empty
+        const taskList = document.getElementById('all-tasks');
+        if (taskList.children.length === 0) {
+            taskList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-title">No Tasks Yet</div>
+                    <div class="empty-state-message">
+                        Use the Smart CRA Assistant or Quick Add form to create your first task!
+                    </div>
+                </div>
+            `;
+        }
+        
+        updateTaskStats();
+        saveData();
+        alert('✅ Task deleted!');
+    }
+}
+
+// Allow a user to edit an existing task's description, due date and priority.
+// When invoked from the "Edit" button on a task item, this function
+// locates the associated task in the `siteData` model, prompts the user
+// for new values, updates both the data model and the DOM, and then
+// persists the changes. Task site cannot currently be changed via this
+// editor; if a site change is desired the task can be deleted and
+// recreated.
+function editTask(button) {
+    const taskItem = button.closest('.task-item');
+    const taskId = taskItem.getAttribute('data-task-id');
+    let foundSite = null;
+    let foundTask = null;
+    // Locate the task within siteData
+    for (const site in siteData) {
+        const tasks = siteData[site].tasks;
+        const idx = tasks.findIndex(t => t.id === taskId);
+        if (idx >= 0) {
+            foundSite = site;
+            foundTask = tasks[idx];
+            break;
+        }
+    }
+    if (!foundTask) {
+        alert('Task not found.');
+        return;
+    }
+    // Prompt for new values; cancel editing if user presses cancel
+    const newDesc = prompt('Edit task description:', foundTask.description);
+    if (newDesc === null) return;
+    const newDue = prompt('Edit due date (YYYY-MM-DD) or leave blank:', foundTask.dueDate || '');
+    let newPriority = prompt('Edit priority (low, medium, high):', foundTask.priority) || foundTask.priority;
+    newPriority = newPriority.toLowerCase();
+    if (!['low','medium','high'].includes(newPriority)) {
+        newPriority = foundTask.priority;
+    }
+    // Prompt for new time spent (hours).  If left blank, retain existing value.  Accepts decimal numbers like 1.5 or 0.75.
+    let newTimeSpentInput = prompt('Edit time spent (hours, e.g., 0.5, 1, 0.75):', foundTask.timeSpent !== undefined ? foundTask.timeSpent : '');
+    let newTimeSpent = foundTask.timeSpent || 0;
+    if (newTimeSpentInput !== null && newTimeSpentInput.trim() !== '') {
+        const parsedTime = parseFloat(newTimeSpentInput.trim());
+        if (!isNaN(parsedTime)) {
+            newTimeSpent = parsedTime;
+        }
+    }
+    // Prompt for new category; show available categories
+    const categoryPrompt = 'Edit category (IMP Management, Safety, Regulatory, Documentation, Monitoring, Vendor Oversight, Data Integrity, Other):';
+    let newCategory = prompt(categoryPrompt, foundTask.category) || foundTask.category;
+    // Update data model
+    foundTask.description = newDesc.trim();
+    foundTask.dueDate = newDue ? newDue.trim() : '';
+    foundTask.priority = newPriority;
+    foundTask.timeSpent = newTimeSpent;
+    // Re-classify the task based on the updated description to refresh its category; if the user provided a new category it overrides
+    const reClass = classifyTask(foundTask.description);
+    if (newCategory) {
+        foundTask.category = newCategory.trim();
+    } else {
+        foundTask.category = reClass.category || foundTask.category;
+    }
+    // Update DOM for global list
+    const taskTitleEl = taskItem.querySelector('.task-title');
+    if (taskTitleEl) {
+        // Determine if this item is in the global list (#all-tasks) or a site list
+        const isGlobal = taskItem.closest('#all-tasks') !== null;
+        if (isGlobal) {
+            const siteDisplay = foundSite === 'all' ? 'All Sites' : `Site ${foundTask.site}`;
+            taskTitleEl.textContent = `${siteDisplay} - ${foundTask.description}`;
+        } else {
+            taskTitleEl.textContent = foundTask.description;
+        }
+    }
+    const details = taskItem.querySelector('.task-details');
+    if (details) {
+        const priorityLabel = foundTask.priority.charAt(0).toUpperCase() + foundTask.priority.slice(1);
+        const categoryLabel = foundTask.category || 'General';
+        const timeLabel = (foundTask.timeSpent && foundTask.timeSpent > 0) ? `${foundTask.timeSpent}h` : 'N/A';
+        details.innerHTML = `<span>📂 Category: ${categoryLabel}</span><span>📅 Due: ${foundTask.dueDate || 'No deadline'}</span><span>⏱️ Time: ${timeLabel}</span><span>⚠️ Priority: ${priorityLabel}</span>`;
+    }
+    // Update CSS class based on priority
+    taskItem.className = `task-item ${foundTask.priority}-priority`;
+    updateTaskStats();
+    saveData();
+    alert('✅ Task updated!');
+}
+
+function updateTaskStats() {
+    const allTasks = [];
+    Object.values(siteData).forEach(site => {
+        allTasks.push(...site.tasks);
+    });
+    
+    const totalTasks = allTasks.length;
+    const highPriority = allTasks.filter(t => t.priority === 'high').length;
+    const completed = allTasks.filter(t => t.status === 'done').length;
+    const thisWeek = totalTasks; // Simplified
+    
+    // Update stats
+    document.getElementById('total-tasks').textContent = totalTasks;
+    document.getElementById('high-priority').textContent = highPriority;
+    document.getElementById('completed-tasks').textContent = completed;
+    document.getElementById('this-week').textContent = thisWeek;
+    
+    // Update site task counts for dynamically generated site tabs.  Dynamic site
+    // pages use the id pattern "site_<siteNumber>-tasks" to avoid conflicting with
+    // any legacy static pages that may remain in the markup.
+    Object.keys(siteData).forEach(site => {
+        const siteTaskCount = siteData[site].tasks.filter(t => t.status !== 'done').length;
+        const dynamicElement = document.getElementById(`site_${site}-tasks`);
+        if (dynamicElement) {
+            dynamicElement.textContent = siteTaskCount;
+        }
+    });
+    
+    // Update priority list
+    const priorityList = document.getElementById('priority-list');
+    const highPriorityTasks = allTasks.filter(t => t.priority === 'high' && t.status !== 'done');
+    
+    if (highPriorityTasks.length > 0) {
+        priorityList.innerHTML = '';
+        highPriorityTasks.forEach(task => {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task-item high-priority';
+            taskDiv.innerHTML = `
+                <div class="task-content">
+                    <div class="task-title">Site ${task.site} - ${task.description}</div>
+                    <div class="task-details">
+                        <span>📅 Due: ${task.dueDate || 'No deadline'}</span>
+                        <span>⚠️ Priority: High</span>
+                    </div>
+                </div>
+                <div class="task-actions">
+                    <span class="status-badge status-todo">High Priority</span>
+                </div>
+            `;
+            priorityList.appendChild(taskDiv);
+        });
+    } else if (totalTasks > 0) {
+        priorityList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🎯</div>
+                <div class="empty-state-title">No High Priority Tasks</div>
+                <div class="empty-state-message">
+                    All tasks are under control! High priority items will appear here.
+                </div>
+            </div>
+        `;
+    }
+    // Update handover and mental health status after stats refresh
+    renderHandover();
+    updateMentalHealthStatus();
+}
+
+// Remove any legacy static site elements that may be present in the markup.  These
+// include hard‑coded site tab buttons (without a data‑site attribute) and
+// sections whose ids match the pattern "site1234" (without an underscore).  The
+// dynamic system uses ids of the form "site_1234", so this will not remove
+// dynamic pages.
+function removeLegacySiteElements() {
+    // Remove legacy buttons labeled with "Site XXXX" that have no data-site attribute.
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        const label = btn.textContent.trim();
+        // Skip the Add Site button and any dynamic site tabs (which have data-site attributes)
+        if (btn.getAttribute('data-site')) return;
+        if (/^Site\s?\d{4}$/.test(label)) {
+            btn.remove();
+        }
+    });
+    // Remove legacy tab content sections with ids like "site1234"
+    document.querySelectorAll('.tab-content').forEach(content => {
+        const id = content.id || '';
+        if (/^site\d{4}$/.test(id)) {
+            content.remove();
+        }
+    });
+}
+// ================= SITE MANAGEMENT FUNCTIONS =================
+// Ensure a site entry exists in the data model and corresponding UI elements.
+function ensureSiteExists(siteNumber) {
+    if (!siteNumber) return;
+    if (!siteData[siteNumber]) {
+        siteData[siteNumber] = { tasks: [], lastVisit: null, nextVisit: null };
+    }
+    createSiteTabDynamic(siteNumber);
+    createSiteTabContent(siteNumber);
+    addSiteOption(siteNumber);
+}
+
+// Create the tab button for a site and attach a delete control.
+function createSiteTabDynamic(siteNumber) {
+    const siteTabs = document.getElementById('site-tabs');
+    if (!siteTabs) return;
+    // Avoid duplicate buttons
+    if (siteTabs.querySelector(`button[data-site='${siteNumber}']`)) return;
+    const tab = document.createElement('button');
+    tab.className = 'tab-button';
+    tab.setAttribute('data-site', siteNumber);
+    tab.textContent = `Site ${siteNumber}`;
+    tab.onclick = function(event) {
+        showTab(event, 'site_' + siteNumber);
+    };
+    // Add small delete button to remove site
+    const delBtn = document.createElement('span');
+    delBtn.textContent = ' ❌';
+    delBtn.style.marginLeft = '8px';
+    delBtn.style.color = '#e74c3c';
+    delBtn.style.cursor = 'pointer';
+    delBtn.onclick = function(e) {
+        e.stopPropagation();
+        // Remove site data
+        delete siteData[siteNumber];
+        // Remove tab and associated page
+        const page = document.getElementById('site_' + siteNumber);
+        if (page) page.remove();
+        tab.remove();
+        // Remove from select options
+        const select = document.getElementById('task-site');
+        const opt = select ? select.querySelector(`option[value='${siteNumber}']`) : null;
+        if (opt) opt.remove();
+        // Also remove any tasks associated with this site from the global list
+        const allTasksList = document.getElementById('all-tasks');
+        if (allTasksList) {
+            Array.from(allTasksList.querySelectorAll('.task-item')).forEach(item => {
+                const itemSite = item.getAttribute('data-site');
+                // Remove the task if it belongs to the deleted site
+                if (itemSite === siteNumber) {
+                    item.remove();
+                }
+            });
+            // If the list becomes empty, show the empty state
+            if (allTasksList.children.length === 0) {
+                allTasksList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-title">No Tasks Yet</div>
+                        <div class="empty-state-message">
+                            Use the Smart CRA Assistant or Quick Add form to create your first task!
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        updateTaskStats();
+        saveData();
+    };
+    tab.appendChild(delBtn);
+    siteTabs.appendChild(tab);
+}
+
+// Generate the content area for a site.  Uses an underscore in the id to
+// differentiate from any legacy static pages.
+function createSiteTabContent(siteNumber) {
+    const tasksTab = document.getElementById('tasks');
+    if (!tasksTab) return;
+    const parent = tasksTab.parentNode;
+    if (document.getElementById('site_' + siteNumber)) return;
+    const content = document.createElement('div');
+    content.className = 'tab-content';
+    content.id = 'site_' + siteNumber;
+    // Build the site overview card.  Each visit field gets its own id so it can
+    // be updated dynamically.  The status field has been removed per user request.
+    content.innerHTML = `
+        <div class="content-card">
+            <div class="card-title">🏥 Site ${siteNumber} Overview</div>
+            <div class="site-info-grid">
+                <div class="site-info-item">
+                    <div class="info-label">Last Visit</div>
+                    <div class="info-value editable" id="site_${siteNumber}-lastVisit" onclick="editVisit('${siteNumber}', 'last')">Click to set</div>
+                </div>
+                <div class="site-info-item">
+                    <div class="info-label">Next Visit</div>
+                    <div class="info-value editable" id="site_${siteNumber}-nextVisit" onclick="editVisit('${siteNumber}', 'next')">Click to set</div>
+                </div>
+                <div class="site-info-item">
+                    <div class="info-label">Open Tasks</div>
+                    <div class="info-value" id="site_${siteNumber}-tasks">0</div>
+                </div>
+            </div>
+            <div class="task-list" id="site_${siteNumber}-task-list">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-title">No Tasks for Site ${siteNumber}</div>
+                    <div class="empty-state-message">
+                        Use the task form to add tasks to this site.
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    parent.appendChild(content);
+    // After inserting the new site into the DOM, populate any previously stored
+    // visit dates.  If none are present, leave the default "Click to set" text.
+    const lastVal = siteData[siteNumber] && siteData[siteNumber].lastVisit ? siteData[siteNumber].lastVisit : null;
+    const nextVal = siteData[siteNumber] && siteData[siteNumber].nextVisit ? siteData[siteNumber].nextVisit : null;
+    updateSiteVisitDisplay(siteNumber, 'last', lastVal || 'Click to set');
+    updateSiteVisitDisplay(siteNumber, 'next', nextVal || 'Click to set');
+}
+
+// Append a new site option to the task selection dropdown
+function addSiteOption(siteNumber) {
+    const select = document.getElementById('task-site');
+    if (!select) return;
+    if (select.querySelector(`option[value='${siteNumber}']`)) return;
+    const option = document.createElement('option');
+    option.value = siteNumber;
+    option.textContent = `Site ${siteNumber}`;
+    select.appendChild(option);
+}
+
+// Add a task element to the site-specific task list
+function addToSiteTaskList(task, siteNumber) {
+    const list = document.getElementById(`site_${siteNumber}-task-list`);
+    if (!list) return;
+    const emptyState = list.querySelector('.empty-state');
+    if (emptyState) {
+        emptyState.remove();
+    }
+    const priorityLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+    const categoryLabel = task.category || 'General';
+    const item = document.createElement('div');
+    item.className = `task-item ${task.priority}-priority`;
+    item.setAttribute('data-task-id', task.id);
+    // Tag with site for deletion/editing reference
+    item.setAttribute('data-site', siteNumber);
+    item.innerHTML = `
+        <div class="task-content">
+            <div class="task-title">${task.description}</div>
+            <div class="task-details">
+                <span>📂 Category: ${categoryLabel}</span>
+                <span>📅 Due: ${task.dueDate || 'No deadline'}</span>
+                <span>⏱️ Time: ${task.timeSpent && task.timeSpent > 0 ? task.timeSpent + 'h' : 'N/A'}</span>
+                <span>⚠️ Priority: ${priorityLabel}</span>
+            </div>
+        </div>
+        <div class="task-actions">
+            <span class="status-badge status-todo">To Do</span>
+            <button class="action-btn" onclick="markDone(this)">Mark Done</button>
+            <button class="action-btn" style="background:#2980b9;" onclick="editTask(this)">Edit</button>
+            <button class="action-btn" style="background:#e74c3c;" onclick="deleteTask(this)">Delete</button>
+        </div>
+    `;
+    if (task.priority === 'high') {
+        list.insertBefore(item, list.firstChild);
+    } else {
+        list.appendChild(item);
+    }
+}
+
+// Initialize site UI elements on page load based on existing siteData
+function initializeSites() {
+    const sites = Object.keys(siteData);
+    sites.forEach(siteNumber => {
+        // Ensure the UI for each site exists
+        ensureSiteExists(siteNumber);
+    });
+}
+
+// Override the default addCustomSite handler to wire into our dynamic site logic
+function addCustomSiteDynamic() {
+    const input = prompt('Enter site number (e.g., 2312):');
+    if (!input) return;
+    const siteNumber = input.trim();
+    if (siteData[siteNumber]) {
+        alert('⚠️ Site already exists.');
+        return;
+    }
+    ensureSiteExists(siteNumber);
+    saveData();
+    alert(`✅ Site ${siteNumber} added!`);
+}
+
+function processCommand() {
+    const input = document.getElementById('command-input');
+    const command = input.value.trim();
+    if (!command) {
+        alert('Please enter a command first.');
+        return;
+    }
+
+    // If the command contains "next visit" or "last visit", treat it as a visit update
+    const visitRegex = /(\d{4}).*\b(next visit|last visit)\b/;
+    const visitMatch = command.toLowerCase().match(visitRegex);
+    if (visitMatch) {
+        const site = visitMatch[1];
+        const isNext = visitMatch[2] === 'next visit';
+        const dateMatch = command.match(/\b\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b/);
+        const dateString = dateMatch ? dateMatch[0] : null;
+        if (!dateString) {
+            alert('Could not find a valid date in the command.');
+            return;
+        }
+        const date = new Date(dateString);
+        if (isNaN(date)) {
+            alert('Invalid date format. Please use a valid date.');
+            return;
+        }
+        const formattedDate = date.toISOString().split('T')[0];
+        ensureSiteExists(site);
+        setVisitDate(site, isNext ? 'next' : 'last', formattedDate);
+        alert(`✅ ${isNext ? 'Next' : 'Last'} visit set for Site ${site}: ${formattedDate}`);
+        input.value = '';
+        return;
+    }
+
+    // Otherwise, treat the command as a quick task creation request
+    // Extract the site number (first 4‑digit number in the command)
+    const siteExtract = command.match(/\b(\d{4})\b/);
+    if (!siteExtract) {
+        alert('Please specify a 4‑digit site number in your command.');
+        return;
+    }
+    const siteNumber = siteExtract[1];
+    // The description is everything after the site number
+    // Remove the site token (e.g., "site 2304" or just "2304") from the command to form the description
+    // Remove the site number from the command regardless of whether it is
+    // prefaced with the word "site". We perform two replacements to
+    // handle cases like "site 2402" and just "2402".
+    let description = command.replace(new RegExp('\\bsite\\s*' + siteNumber + '\\b', 'i'), '').trim();
+    description = description.replace(new RegExp('\\b' + siteNumber + '\\b', 'i'), '').trim();
+    if (!description) {
+        alert('Please include a task description after the site number.');
+        return;
+    }
+    ensureSiteExists(siteNumber);
+    // Use classifyTask to infer category and priority
+    const { category, priority } = classifyTask(description);
+    // Map the returned priority to low/medium/high
+    let suggestedPriority = 'low';
+    if (priority.toLowerCase() === 'urgent') suggestedPriority = 'high';
+    else if (priority.toLowerCase() === 'medium') suggestedPriority = 'medium';
+    // Ask the user if they accept the suggested task
+    const accept = confirm(
+        `Detected Category: ${category}\nSuggested Priority: ${priority}\n\nSite: ${siteNumber}\nTask: ${description}\n\nClick OK to accept and create this task, or Cancel to edit the details.`
+    );
+    if (accept) {
+        // Pre-fill the quick add form with our values and call addTask
+        document.getElementById('task-site').value = siteNumber;
+        document.getElementById('task-description').value = description;
+        document.getElementById('task-priority').value = suggestedPriority;
+        document.getElementById('task-due-date').value = '';
+        addTask();
+    } else {
+        // Let the user edit the details via prompts
+        const newSite = prompt('Enter site number:', siteNumber) || siteNumber;
+        const newDesc = prompt('Enter task description:', description) || description;
+        const newDue = prompt('Enter due date (YYYY-MM-DD) or leave blank:', '');
+        let newPriority = prompt('Enter priority (low, medium, high):', suggestedPriority) || suggestedPriority;
+        newPriority = newPriority.toLowerCase();
+        if (!['low','medium','high'].includes(newPriority)) newPriority = suggestedPriority;
+        document.getElementById('task-site').value = newSite.trim();
+        document.getElementById('task-description').value = newDesc.trim();
+        document.getElementById('task-priority').value = newPriority;
+        document.getElementById('task-due-date').value = newDue ? newDue.trim() : '';
+        addTask();
+    }
+    input.value = '';
+}
+
+function editVisit(site, type) {
+    const field = type + 'Visit';
+    const current = siteData[site] && siteData[site][field] ? siteData[site][field] : 'Not set';
+    
+    const newDate = prompt(`Edit ${type} visit for Site ${site}:\n\nCurrent: ${current}\n\nEnter new date (YYYY-MM-DD) or leave blank to clear:`);
+    
+    if (newDate === null) return;
+    
+    if (newDate.trim() === '') {
+        siteData[site][field] = null;
+        updateSiteVisitDisplay(site, type, 'Click to set');
+    } else {
+        siteData[site][field] = newDate;
+        updateSiteVisitDisplay(site, type, newDate);
+    }
+    
+    saveData();
+    alert(`✅ ${type} visit updated for Site ${site}`);
+}
+
+// Update the displayed visit date for a given site and type ("last" or "next").
+// The site overview template uses ids of the form `site_<site>-lastVisit` and
+// `site_<site>-nextVisit` to facilitate targeted updates.  When called, this
+// function will update the inner text of the corresponding element.  If the
+// element cannot be found, the update is skipped silently.
+function updateSiteVisitDisplay(site, type, value) {
+    const fieldId = `site_${site}-${type}Visit`;
+    const el = document.getElementById(fieldId);
+    if (el) {
+        el.textContent = value && value !== '' ? value : 'Click to set';
+    }
+}
+
+// Set a visit date for a site.  This helper ensures the site exists in the
+// underlying model, stores the provided date on the appropriate field
+// (`lastVisit` or `nextVisit`), updates the display and persists the change.
+function setVisitDate(site, type, date) {
+    if (!site) return;
+    const field = type + 'Visit';
+    ensureSiteExists(site);
+    // Normalize empty strings or invalid dates to null
+    if (!date || date.trim() === '') {
+        siteData[site][field] = null;
+        updateSiteVisitDisplay(site, type, 'Click to set');
+    } else {
+        siteData[site][field] = date;
+        updateSiteVisitDisplay(site, type, date);
+    }
+    saveData();
+}
+
+function applySettings() {
+    const timeZone = document.getElementById('timeZone').value.trim().toLowerCase();
+    const craCountry = document.getElementById('craCountry').value || 'Sweden';
+    const teamCountry = document.getElementById('teamCountry').value || 'Finland';
+    
+    // Update time zone
+    if (timeZone) {
+        currentTimeZone = timeZoneMap[timeZone] || timeZone;
+        updateTime();
+    }
+    
+    // Update header
+    const workInfo = document.querySelector('.work-info');
+    workInfo.innerHTML = `
+        <span>🇸🇪 Based: ${craCountry}</span>
+        <span>🤝 Team: ${teamCountry}</span>
+        <span>🎯 Sponsor: Switzerland</span>
+        <span class="time-display" id="current-time">⏰ Loading...</span>
+        <span class="data-status" id="data-status">💾 Updated</span>
+    `;
+    
+    updateTime();
+    saveData();
+    alert(`✅ Settings updated!\n\nTime Zone: ${currentTimeZone}\nCRA: ${craCountry}\nTeam: ${teamCountry}`);
+}
+
+function resetData() {
+    if (confirm('⚠️ Reset all data? This cannot be undone.')) {
+        // Clear all data structures
+        siteData = {};
+        taskCounter = 0;
+        templatesData = [];
+        // Remove dynamic site tabs (everything except the Add Site button) from the tabs container
+        const siteTabs = document.getElementById('site-tabs');
+        if (siteTabs) {
+            Array.from(siteTabs.children).forEach(btn => {
+                const isAddButton = btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('addCustomSiteDynamic');
+                if (!isAddButton) {
+                    btn.remove();
+                }
+            });
+        }
+        // Remove dynamic site pages
+        document.querySelectorAll('.tab-content').forEach(content => {
+            if (content.id && content.id.startsWith('site_')) {
+                content.remove();
+            }
+        });
+        // Remove site options from the select drop-down (except default and all)
+        const select = document.getElementById('task-site');
+        if (select) {
+            Array.from(select.options).forEach(opt => {
+                if (opt.value !== '' && opt.value !== 'all') {
+                    opt.remove();
+                }
+            });
+        }
+        // Reset task list in the global tasks tab
+        const allTasksEl = document.getElementById('all-tasks');
+        if (allTasksEl) {
+            allTasksEl.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-title">No Tasks Yet</div>
+                    <div class="empty-state-message">
+                        Use the Smart CRA Assistant or Quick Add form to create your first task!
+                    </div>
+                </div>
+            `;
+        }
+        // Update statistics and persist
+        updateTaskStats();
+        // Refresh templates, handover and mental health display
+        renderTemplates();
+        renderHandover();
+        updateMentalHealthStatus();
+        saveData();
+        alert('✅ All data reset successfully!');
+    }
+}
+
+function saveData() {
+    try {
+        const dataToSave = {
+            siteData: siteData,
+            taskCounter: taskCounter,
+            templatesData: templatesData,
+            currentTimeZone: currentTimeZone,
+            timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('craSystemData', JSON.stringify(dataToSave));
+        
+        const statusElement = document.getElementById('data-status');
+        if (statusElement) {
+            statusElement.textContent = '💾 Saved';
+            setTimeout(() => {
+                statusElement.textContent = '💾 Ready';
+            }, 2000);
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+    }
+}
+
+function loadData() {
+    try {
+        const savedData = localStorage.getItem('craSystemData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            siteData = data.siteData || siteData;
+            taskCounter = data.taskCounter || 0;
+            // Load templates data if present
+            templatesData = data.templatesData || templatesData;
+            currentTimeZone = data.currentTimeZone || 'Europe/Stockholm';
+            
+        }
+    } catch (error) {
+        console.error('Load error:', error);
+    }
+}
+
+// ===== INITIALIZATION =====
+function initializeSystem() {
+    console.log('Initializing Clean CRA System...');
+    
+    // Load saved data (including sites, tasks and templates) from localStorage. Do not clear
+    // siteData or taskCounter here so that any previously saved tasks and templates persist.
+    loadData();
+    // Remove any leftover static site markup from older versions
+    removeLegacySiteElements();
+    // Build site tabs and pages from loaded data
+    initializeSites();
+    // Restore tasks into the global and site‑specific lists
+    Object.keys(siteData).forEach(site => {
+        siteData[site].tasks.forEach(task => {
+            addToTaskList(task, site);
+            addToSiteTaskList(task, site);
+        });
+    });
+    updateTaskStats();
+    // Render templates and handover after tasks and sites are restored
+    renderTemplates();
+    renderHandover();
+    updateMentalHealthStatus();
+    
+    // Start time updates
+    updateTime();
+    setInterval(updateTime, 60000);
+    
+    // Set up real-time time zone updates
+    const timeZoneInput = document.getElementById('timeZone');
+    if (timeZoneInput) {
+        timeZoneInput.addEventListener('input', function(e) {
+            const inputValue = e.target.value.trim().toLowerCase();
+            if (inputValue) {
+                currentTimeZone = timeZoneMap[inputValue] || inputValue;
+                updateTime();
+            }
+        });
+    }
+    
+    // Set up command input enter key
+    const commandInput = document.getElementById('command-input');
+    if (commandInput) {
+        commandInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processCommand();
+            }
+        });
+    }
+    
+    // Auto-save every 30 seconds
+    setInterval(saveData, 30000);
+
+    // When the user finishes typing a description in the Quick Add form, automatically
+    // classify it and set the category dropdown to the suggested category. This makes
+    // the recommended category visible before the task is added, but the user can
+    // override it by selecting a different option.
+    const descInput = document.getElementById('task-description');
+    const categorySelect = document.getElementById('task-category');
+    if (descInput && categorySelect) {
+        descInput.addEventListener('blur', function() {
+            const text = descInput.value.trim();
+            if (text) {
+                const cls = classifyTask(text);
+                if (cls && cls.category) {
+                    categorySelect.value = cls.category;
+                }
+            }
+        });
+    }
+    
+    // Save before page unload
+    window.addEventListener('beforeunload', saveData);
+    
+    console.log('Clean CRA System initialized successfully!');
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSystem);
+} else {
+    initializeSystem();
+}
+
+// Backup initialization
+setTimeout(initializeSystem, 1000);
+
+console.log('Enhanced CRA Management System v4 - Clean Version Loaded');
+
+// Attach event listener to the Save Template button after DOM is ready. This ensures
+// that the Save Template functionality is always bound, even if inline onclick
+// attributes are stripped or overridden by other scripts.  Prevent default
+// behaviour to avoid unintended form submissions.
+document.addEventListener('DOMContentLoaded', function () {
+    const saveBtn = document.getElementById('save-template-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            saveTemplate();
+        });
+    }
+});
+</script>
+<script>
+function classifyTask(description) {
+    // Map keywords to categories.  These categories follow the GCP E6 R3 guidance by
+    // grouping tasks into high level areas such as IMP management, Regulatory, Safety,
+    // Documentation and others.  The keys should be lowercase and represent common
+    // terms found in user inputs.  If multiple keywords match, the first match in
+    // this object will determine the category.
+    const categories = {
+        // IMP Management – includes investigational product handling, shipments, temperature logs
+        "imp": "IMP Management",
+        "ip": "IMP Management",
+        "drug": "IMP Management",
+        "product": "IMP Management",
+        "shipment": "IMP Management",
+        "shipping": "IMP Management",
+        "temperature": "IMP Management",
+        "inventory": "IMP Management",
+        "accountability": "IMP Management",
+        "dispense": "IMP Management",
+        
+        // Safety – adverse events, serious adverse events, reporting
+        "sae": "Safety",
+        "ae": "Safety",
+        "susar": "Safety",
+        "serious": "Safety",
+        "safety": "Safety",
+        
+        // Regulatory – ethics committee, IRB submissions, approvals
+        "ec": "Regulatory",
+        "ethics": "Regulatory",
+        "irb": "Regulatory",
+        "submission": "Regulatory",
+        "approval": "Regulatory",
+        "regulatory": "Regulatory",
+        
+        // Documentation – newsletters, reports, filing and other documentation tasks
+        "newsletter": "Documentation",
+        "report": "Documentation",
+        "filing": "Documentation",
+        "document": "Documentation",
+        "docs": "Documentation",
+        "cv": "Documentation",
+        "training": "Documentation",
+        "ib": "Documentation",
+        
+        // Monitoring and visits
+        "monitoring": "Monitoring",
+        "visit": "Monitoring",
+        "follow up": "Monitoring",
+        
+        // Vendor oversight
+        "vendor": "Vendor Oversight",
+        
+        // Data integrity and queries
+        "data": "Data Integrity",
+        "query": "Data Integrity"
+    };
+
+    const priorities = {
+        // Priorities help triage tasks. Urgent tasks are critical and usually related to
+        // safety or deviations; medium tasks require timely follow‑up; low tasks are less urgent.
+        "sae": "Urgent",
+        "susar": "Urgent",
+        "deviation": "Urgent",
+        "serious": "Urgent",
+        "safety": "Urgent",
+        
+        // Medium priority tasks
+        "ib": "Medium",
+        "cv": "Medium",
+        "training": "Medium",
+        "shipment": "Medium",
+        "shipping": "Medium",
+        "inventory": "Medium",
+        "monitoring": "Medium",
+        "data": "Medium",
+        "query": "Medium",
+        
+        // Low priority tasks
+        "visit": "Low",
+        "newsletter": "Low",
+        "report": "Low",
+        "filing": "Low"
+    };
+
+    let matchedCategory = "General";
+    let matchedPriority = "Low";
+    const input = description.toLowerCase();
+    // Iterate through each keyword and check for a full‑word match using regular expressions.
+    // The \b token matches word boundaries so that short keywords like "ec" do not match
+    // within larger words like "check".  For multi‑word keywords (e.g. "follow up") we
+    // replace spaces with \s+ to allow any whitespace between words.
+    for (const keyword in categories) {
+        const pattern = '\\b' + keyword.replace(/\s+/g, '\\s+') + '\\b';
+        const regex = new RegExp(pattern, 'i');
+        if (regex.test(input)) {
+            matchedCategory = categories[keyword];
+            if (priorities[keyword]) {
+                matchedPriority = priorities[keyword];
+            }
+            break;
+        }
+    }
+    return {
+        category: matchedCategory,
+        priority: matchedPriority
+    };
+}
+
+// ================= TEMPLATE MANAGEMENT =================
+// Render the list of saved templates. If no templates exist, show an empty state.
+function renderTemplates() {
+    const container = document.getElementById('template-list');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!Array.isArray(templatesData) || templatesData.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📑</div>
+                <div class="empty-state-title">No Templates Yet</div>
+                <div class="empty-state-message">
+                    Create templates for emails, forms or other content. They will appear here.
+                </div>
+            </div>
+        `;
+        return;
+    }
+    templatesData.forEach(tmpl => {
+        const item = document.createElement('div');
+        item.className = 'task-item low-priority';
+        // Store id for deletion
+        item.setAttribute('data-template-id', tmpl.id);
+        item.innerHTML = `
+            <div class="task-content">
+                <div class="task-title">${tmpl.name} (${tmpl.type})</div>
+                <div class="task-details"><span>${tmpl.content.substring(0, 80)}${tmpl.content.length > 80 ? '…' : ''}</span></div>
+            </div>
+            <div class="task-actions">
+                <button class="action-btn" style="background:#27ae60;" onclick="useTemplate('${tmpl.id}')">Use</button>
+                <button class="action-btn" style="background:#e74c3c;" onclick="deleteTemplate('${tmpl.id}')">Delete</button>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+// Save a new template from input fields. Validates inputs and persists to local storage.
+function saveTemplate() {
+    const nameInput = document.getElementById('template-name');
+    const typeSelect = document.getElementById('template-type');
+    const contentArea = document.getElementById('template-content');
+    const name = nameInput.value.trim();
+    const type = typeSelect.value;
+    const content = contentArea.value.trim();
+    if (!name || !content) {
+        alert('Please enter a template name and content.');
+        return;
+    }
+    const id = 'tmpl_' + Date.now();
+    templatesData.push({ id: id, name: name, type: type, content: content });
+    // Clear fields
+    nameInput.value = '';
+    contentArea.value = '';
+    // Re-render and save
+    renderTemplates();
+    saveData();
+    alert('✅ Template saved!');
+}
+
+// Delete a template by its id and update storage
+function deleteTemplate(id) {
+    templatesData = templatesData.filter(t => t.id !== id);
+    renderTemplates();
+    saveData();
+}
+
+// Use a template by filling the Smart Assistant input with its content
+function useTemplate(id) {
+    const tmpl = templatesData.find(t => t.id === id);
+    if (tmpl) {
+        const cmdInput = document.getElementById('command-input');
+        if (cmdInput) {
+            cmdInput.value = tmpl.content;
+            alert(`Template “${tmpl.name}” inserted into the Smart Assistant input. You can edit or process it.`);
+        }
+    }
+}
+
+// ================= HANDOVER GENERATION =================
+// Render the handover tab contents based on the current tasks. Shows an empty state when less than two tasks.
+function renderHandover() {
+    const container = document.getElementById('handover-content');
+    const btn = document.getElementById('generate-handover-btn');
+    if (!container) return;
+    // Gather all active (not done) tasks across sites
+    const allTasks = [];
+    Object.values(siteData).forEach(site => {
+        if (site && Array.isArray(site.tasks)) {
+            allTasks.push(...site.tasks.filter(t => t.status !== 'done'));
+        }
+    });
+    if (allTasks.length < 2) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📤</div>
+                <div class="empty-state-title">Need at least 2 tasks</div>
+                <div class="empty-state-message">
+                    Add more tasks to generate a handover summary for business continuity.
+                </div>
+            </div>
+        `;
+        if (btn) btn.style.display = 'none';
+        return;
+    }
+    // Build an HTML table summarizing tasks
+    let html = '<table style="width:100%; border-collapse: collapse; font-size:14px;">';
+    html += '<tr style="text-align:left; background:#ecf0f1;">' +
+            '<th style="border-bottom:1px solid #ccc; padding:4px;">Site</th>' +
+            '<th style="border-bottom:1px solid #ccc; padding:4px;">Description</th>' +
+            '<th style="border-bottom:1px solid #ccc; padding:4px;">Category</th>' +
+            '<th style="border-bottom:1px solid #ccc; padding:4px;">Priority</th>' +
+            '<th style="border-bottom:1px solid #ccc; padding:4px;">Due Date</th>' +
+            '<th style="border-bottom:1px solid #ccc; padding:4px;">Time Spent</th>' +
+            '</tr>';
+    allTasks.forEach(task => {
+        const prLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+        const timeLabel = (task.timeSpent && task.timeSpent > 0) ? task.timeSpent + 'h' : 'N/A';
+        html += `<tr><td style="padding:4px;">${task.site}</td><td style="padding:4px;">${task.description}</td><td style="padding:4px;">${task.category || 'General'}</td><td style="padding:4px;">${prLabel}</td><td style="padding:4px;">${task.dueDate || 'No deadline'}</td><td style="padding:4px;">${timeLabel}</td></tr>`;
+    });
+    html += '</table>';
+    container.innerHTML = html;
+    if (btn) btn.style.display = 'inline-block';
+}
+
+// Generate a handover file (plain text) summarizing all active tasks and trigger a download
+function generateHandover() {
+    // Gather tasks
+    const allTasks = [];
+    Object.values(siteData).forEach(site => {
+        if (site && Array.isArray(site.tasks)) {
+            allTasks.push(...site.tasks.filter(t => t.status !== 'done'));
+        }
+    });
+    if (allTasks.length < 2) {
+        alert('At least two tasks are required to generate a handover file.');
+        return;
+    }
+    // Build an HTML document representing the handover report. Use basic styling and
+    // alternating row colours for readability. This HTML will be saved as a
+    // Word document (.doc) so that users can open it in Word or convert to PDF easily.
+    let html = '<html><head><meta charset="UTF-8"><style>';
+    html += 'body{font-family:Arial,Helvetica,sans-serif;margin:20px;}';
+    html += 'h2{color:#2c3e50;margin-bottom:20px;}';
+    html += 'table{border-collapse:collapse;width:100%;}';
+    html += 'th{background-color:#3498db;color:#fff;padding:8px;border:1px solid #ccc;text-align:left;}';
+    html += 'td{padding:8px;border:1px solid #ccc;}';
+    html += 'tr:nth-child(even){background-color:#f2f2f2;}';
+    html += '</style></head><body>';
+    html += '<h2>CRA Handover Report</h2>';
+    html += '<table><tr><th>Site</th><th>Description</th><th>Category</th><th>Priority</th><th>Due Date</th><th>Time Spent</th></tr>';
+    allTasks.forEach(task => {
+        const prLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+        const timeLabel = (task.timeSpent && task.timeSpent > 0) ? task.timeSpent + 'h' : 'N/A';
+        html += `<tr><td>${task.site}</td><td>${task.description}</td><td>${task.category || 'General'}</td><td>${prLabel}</td><td>${task.dueDate || 'No deadline'}</td><td>${timeLabel}</td></tr>`;
+    });
+    html += '</table>';
+    html += '</body></html>';
+    // Prepend BOM to ensure correct encoding in Word. Create a blob with a
+    // Word MIME type so that the download opens in Microsoft Word (or similar).
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'CRA_Handover_' + new Date().toISOString().split('T')[0] + '.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    alert('✅ Handover report generated and downloaded.');
+}
+
+// ================= MENTAL HEALTH SUGGESTIONS =================
+// Update mental health status based on current workload (number of active tasks). Encourages healthy habits.
+function updateMentalHealthStatus() {
+    const statusEl = document.getElementById('mental-health-status');
+    if (!statusEl) return;
+    const tasks = [];
+    Object.values(siteData).forEach(site => {
+        if (site && Array.isArray(site.tasks)) {
+            tasks.push(...site.tasks.filter(t => t.status !== 'done'));
+        }
+    });
+    const count = tasks.length;
+    let message;
+    // Provide wellbeing suggestions based on task load. We incorporate cognitive behavioural therapy (CBT)
+    // concepts by recommending short mindfulness exercises or reflection when the workload is moderate,
+    // and encouraging break planning and discussion with supervisors when the workload becomes high.
+    if (count <= 5) {
+        message = '😊 Your workload is manageable. Stay hydrated, stretch regularly and enjoy short mindful breathing exercises.';
+    } else if (count <= 10) {
+        message = '😐 Workload is moderate. Schedule a 5‑minute pause to practice CBT techniques: take deep breaths, reframe negative thoughts and maintain perspective.';
+    } else {
+        message = '⚠️ Your workload seems high. It\'s time to take a break, talk to your team about redistributing tasks, and consider longer rest periods to prevent burnout.';
+    }
+    statusEl.textContent = message;
+}
+
+function handleQuickAdd(inputText) {
+    const taskInfo = classifyTask(inputText);
+    const source = prompt("Task source? (Sponsor, Site, CRA Proactive, Vendor)", "Sponsor");
+    const confirmed = confirm(
+        `Detected Category: ${taskInfo.category}\nPriority: ${taskInfo.priority}\nSource: ${source}\n\nDo you want to save this task?`
+    );
+    if (confirmed) {
+        // Here you would hook into the existing task-adding logic
+        alert("Task saved (logic to store it would go here).");
+    }
+}
+</script></body>
+</html>
