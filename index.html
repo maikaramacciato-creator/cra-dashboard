@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -487,7 +486,7 @@
 
 <div class="container">
     <div class="dashboard-header">
-        <h1>🏥 Enhanced CRA Management System v4</h1>
+        <h1>🏥 Enhanced CRA Management System v5</h1>
         <p id="site-header"><strong>Sites:</strong> None — add your sites using the button below</p>
         <div class="work-info">
             <span>🇸🇪 Based: Sweden</span>
@@ -504,12 +503,49 @@
                 </summary>
 
                 <div style="margin-top: 10px;">
-                    <label>Time Zone: <input class="form-input" id="timeZone" placeholder="Finland, USA, Europe/Stockholm" type="text"/></label><br/><br/>
-                    <div style="font-size:12px; color:#7f8c8d; margin-top:5px; margin-bottom:10px;">
-                        Supported time zones include: Finland (Europe/Helsinki), Sweden (Europe/Stockholm), Norway (Europe/Oslo), USA (America/New_York), UK (Europe/London), and Germany (Europe/Berlin). You may also enter any valid IANA time zone.
-                    </div>
-                    <label>CRA Country: <input class="form-input" id="craCountry" placeholder="Sweden" type="text"/></label><br/><br/>
-                    <label>Team Country: <input class="form-input" id="teamCountry" placeholder="Finland" type="text"/></label><br/><br/>
+                    <label style="display: block; margin-bottom: 10px;">
+                        Time Zone: 
+                        <select class="form-select" id="timeZone" style="width: 100%; margin-top: 5px;">
+                            <option value="Europe/Stockholm">🇸🇪 Sweden (Stockholm)</option>
+                            <option value="Europe/Helsinki">🇫🇮 Finland (Helsinki)</option>
+                            <option value="Europe/Oslo">🇳🇴 Norway (Oslo)</option>
+                            <option value="Europe/Copenhagen">🇩🇰 Denmark (Copenhagen)</option>
+                            <option value="Europe/London">🇬🇧 UK (London)</option>
+                            <option value="Europe/Paris">🇫🇷 France (Paris)</option>
+                            <option value="Europe/Berlin">🇩🇪 Germany (Berlin)</option>
+                            <option value="Europe/Amsterdam">🇳🇱 Netherlands (Amsterdam)</option>
+                            <option value="Europe/Rome">🇮🇹 Italy (Rome)</option>
+                            <option value="Europe/Madrid">🇪🇸 Spain (Madrid)</option>
+                            <option value="Europe/Zurich">🇨🇭 Switzerland (Zurich)</option>
+                            <option value="Europe/Vienna">🇦🇹 Austria (Vienna)</option>
+                            <option value="Europe/Brussels">🇧🇪 Belgium (Brussels)</option>
+                            <option value="Europe/Warsaw">🇵🇱 Poland (Warsaw)</option>
+                            <option value="Europe/Prague">🇨🇿 Czech Republic (Prague)</option>
+                            <option value="America/New_York">🇺🇸 USA East Coast (New York)</option>
+                            <option value="America/Chicago">🇺🇸 USA Central (Chicago)</option>
+                            <option value="America/Denver">🇺🇸 USA Mountain (Denver)</option>
+                            <option value="America/Los_Angeles">🇺🇸 USA West Coast (Los Angeles)</option>
+                            <option value="America/Toronto">🇨🇦 Canada East (Toronto)</option>
+                            <option value="America/Vancouver">🇨🇦 Canada West (Vancouver)</option>
+                            <option value="Asia/Tokyo">🇯🇵 Japan (Tokyo)</option>
+                            <option value="Asia/Shanghai">🇨🇳 China (Shanghai)</option>
+                            <option value="Asia/Hong_Kong">🇭🇰 Hong Kong</option>
+                            <option value="Asia/Singapore">🇸🇬 Singapore</option>
+                            <option value="Asia/Seoul">🇰🇷 South Korea (Seoul)</option>
+                            <option value="Asia/Kolkata">🇮🇳 India (Kolkata)</option>
+                            <option value="Asia/Dubai">🇦🇪 UAE (Dubai)</option>
+                            <option value="Australia/Sydney">🇦🇺 Australia East (Sydney)</option>
+                            <option value="Australia/Melbourne">🇦🇺 Australia South (Melbourne)</option>
+                            <option value="Australia/Perth">🇦🇺 Australia West (Perth)</option>
+                            <option value="Pacific/Auckland">🇳🇿 New Zealand (Auckland)</option>
+                            <option value="America/Sao_Paulo">🇧🇷 Brazil (São Paulo)</option>
+                            <option value="America/Mexico_City">🇲🇽 Mexico (Mexico City)</option>
+                            <option value="Africa/Cairo">🇪🇬 Egypt (Cairo)</option>
+                            <option value="Africa/Johannesburg">🇿🇦 South Africa (Johannesburg)</option>
+                        </select>
+                    </label>
+                    <label style="display: block; margin-bottom: 10px;">CRA Country: <input class="form-input" id="craCountry" placeholder="Sweden" type="text"/></label>
+                    <label style="display: block; margin-bottom: 10px;">Team Country: <input class="form-input" id="teamCountry" placeholder="Finland" type="text"/></label>
                     <button class="ready-button" onclick="applySettings()">💾 Apply Settings</button>
                 </div>
             </details>
@@ -682,13 +718,82 @@ let siteData = {};
 let taskCounter = 0;
 let templatesData = [];
 
+// Enhanced timezone mapping with comprehensive global coverage
 const timeZoneMap = {
+    // Nordic Countries
     'finland': 'Europe/Helsinki',
     'sweden': 'Europe/Stockholm', 
     'norway': 'Europe/Oslo',
-    'usa': 'America/New_York',
+    'denmark': 'Europe/Copenhagen',
+    
+    // Western Europe
     'uk': 'Europe/London',
-    'germany': 'Europe/Berlin'
+    'britain': 'Europe/London',
+    'england': 'Europe/London',
+    'france': 'Europe/Paris',
+    'germany': 'Europe/Berlin',
+    'netherlands': 'Europe/Amsterdam',
+    'holland': 'Europe/Amsterdam',
+    'belgium': 'Europe/Brussels',
+    'switzerland': 'Europe/Zurich',
+    'austria': 'Europe/Vienna',
+    'italy': 'Europe/Rome',
+    'spain': 'Europe/Madrid',
+    
+    // Eastern Europe
+    'poland': 'Europe/Warsaw',
+    'czech': 'Europe/Prague',
+    'hungary': 'Europe/Budapest',
+    'romania': 'Europe/Bucharest',
+    
+    // North America
+    'usa': 'America/New_York',
+    'us': 'America/New_York',
+    'america': 'America/New_York',
+    'new york': 'America/New_York',
+    'chicago': 'America/Chicago',
+    'denver': 'America/Denver',
+    'los angeles': 'America/Los_Angeles',
+    'canada': 'America/Toronto',
+    'toronto': 'America/Toronto',
+    'vancouver': 'America/Vancouver',
+    
+    // Asia Pacific
+    'japan': 'Asia/Tokyo',
+    'tokyo': 'Asia/Tokyo',
+    'china': 'Asia/Shanghai',
+    'shanghai': 'Asia/Shanghai',
+    'singapore': 'Asia/Singapore',
+    'hong kong': 'Asia/Hong_Kong',
+    'korea': 'Asia/Seoul',
+    'seoul': 'Asia/Seoul',
+    'india': 'Asia/Kolkata',
+    'mumbai': 'Asia/Kolkata',
+    'dubai': 'Asia/Dubai',
+    'uae': 'Asia/Dubai',
+    
+    // Oceania
+    'australia': 'Australia/Sydney',
+    'sydney': 'Australia/Sydney',
+    'melbourne': 'Australia/Melbourne',
+    'perth': 'Australia/Perth',
+    'new zealand': 'Pacific/Auckland',
+    'auckland': 'Pacific/Auckland',
+    
+    // South America
+    'brazil': 'America/Sao_Paulo',
+    'sao paulo': 'America/Sao_Paulo',
+    'mexico': 'America/Mexico_City',
+    'argentina': 'America/Buenos_Aires',
+    
+    // Africa
+    'south africa': 'Africa/Johannesburg',
+    'egypt': 'Africa/Cairo',
+    'nigeria': 'Africa/Lagos',
+    
+    // Middle East
+    'israel': 'Asia/Jerusalem',
+    'turkey': 'Europe/Istanbul'
 };
 
 // ===== UTILITY FUNCTIONS =====
@@ -722,18 +827,32 @@ function scrollToSmartAssistant() {
 function updateTime() {
     try {
         const now = new Date();
-        const timeString = now.toLocaleTimeString('en-US', { 
-            timeZone: currentTimeZone,
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
+        let timeString, hour;
         
-        const hour = parseInt(now.toLocaleString('en-US', {
-            timeZone: currentTimeZone,
-            hour: 'numeric',
-            hour12: false
-        }));
+        try {
+            timeString = now.toLocaleTimeString('en-US', { 
+                timeZone: currentTimeZone,
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            
+            hour = parseInt(now.toLocaleString('en-US', {
+                timeZone: currentTimeZone,
+                hour: 'numeric',
+                hour12: false
+            }));
+        } catch (timezoneError) {
+            // Fallback to local time if timezone is invalid
+            console.warn('Invalid timezone, falling back to local time:', currentTimeZone);
+            timeString = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            hour = now.getHours();
+            currentTimeZone = 'Europe/Stockholm'; // Reset to default
+        }
         
         const isWorkHours = hour >= 8 && hour <= 16;
         
@@ -753,30 +872,39 @@ function updateTime() {
 // ===== TAB FUNCTIONS =====
 function showTab(event, tabId) {
     try {
+        // Hide all tab contents
         const tabContents = document.querySelectorAll('.tab-content');
         tabContents.forEach(content => {
             if (content) content.classList.remove('active');
         });
         
+        // Remove active class from all tab buttons
         const tabButtons = document.querySelectorAll('.tab-button');
         tabButtons.forEach(button => {
             if (button) button.classList.remove('active');
         });
         
+        // Show target tab
         const targetTab = document.getElementById(tabId);
         if (targetTab) {
             targetTab.classList.add('active');
+        } else {
+            console.warn(`Tab with id '${tabId}' not found`);
+            return;
         }
         
+        // Set active tab button
         if (event && event.target) {
             event.target.classList.add('active');
         }
         
+        // Special handling for specific tabs
         if (tabId === 'templates') {
             renderTemplates();
         } else if (tabId === 'handover') {
             renderHandover();
         }
+        
         updateWellbeingMessage(tabId);
     } catch (error) {
         console.error('Tab switching error:', error);
@@ -794,6 +922,10 @@ function updateWellbeingMessage(tabId) {
             message = 'Focus on your top priorities! Clean interface with real-time time zones.';
         } else if (tabId === 'tasks') {
             message = 'Building your task system - everything saves automatically!';
+        } else if (tabId === 'templates') {
+            message = 'Create reusable templates to streamline your workflow.';
+        } else if (tabId === 'handover') {
+            message = 'Generate professional handover documents for seamless transitions.';
         } else if (tabId && tabId.startsWith('site_')) {
             const siteNum = tabId.split('_')[1];
             message = `Site ${siteNum} ready for monitoring visits and task management.`;
@@ -810,28 +942,33 @@ function updateWellbeingMessage(tabId) {
 function classifyTask(description) {
     try {
         const categories = {
+            // Data Integrity keywords
             "ecrf": "Data Integrity", "crf": "Data Integrity", "query": "Data Integrity", "queries": "Data Integrity",
             "data entry": "Data Integrity", "data review": "Data Integrity", "source data": "Data Integrity",
             "sdv": "Data Integrity", "data": "Data Integrity", "database": "Data Integrity", "sign": "Data Integrity",
             "review": "Data Integrity", "verify": "Data Integrity", "verification": "Data Integrity",
             "discrepancy": "Data Integrity", "pi to sign": "Data Integrity", "signature": "Data Integrity",
             
+            // Safety keywords
             "sae": "Safety", "ae": "Safety", "adverse event": "Safety", "susar": "Safety", "serious": "Safety",
             "safety": "Safety", "death": "Safety", "hospitalization": "Safety", "life threatening": "Safety",
             "medwatch": "Safety", "cioms": "Safety", "safety report": "Safety", "expedited": "Safety",
             
+            // IMP Management keywords
             "imp": "IMP Management", "ip": "IMP Management", "drug": "IMP Management", "product": "IMP Management",
             "shipment": "IMP Management", "shipping": "IMP Management", "temperature": "IMP Management",
             "inventory": "IMP Management", "accountability": "IMP Management", "dispense": "IMP Management",
             "dispensing": "IMP Management", "randomization": "IMP Management", "drug return": "IMP Management",
             "destruction": "IMP Management", "storage": "IMP Management",
             
+            // Regulatory keywords
             "ec": "Regulatory", "ethics": "Regulatory", "irb": "Regulatory", "submission": "Regulatory",
             "approval": "Regulatory", "regulatory": "Regulatory", "protocol deviation": "Regulatory",
             "deviation": "Regulatory", "amendment": "Regulatory", "protocol": "Regulatory", "consent": "Regulatory",
             "informed consent": "Regulatory", "icf": "Regulatory", "essential documents": "Regulatory",
             "tmf": "Regulatory", "authority": "Regulatory",
             
+            // Documentation keywords
             "newsletter": "Documentation", "report": "Documentation", "filing": "Documentation",
             "document": "Documentation", "docs": "Documentation", "correspondence": "Documentation",
             "email": "Documentation", "minutes": "Documentation", "meeting": "Documentation",
@@ -840,11 +977,13 @@ function classifyTask(description) {
             "qualification": "Documentation", "ib": "Documentation", "investigator brochure": "Documentation",
             "gcp": "Documentation", "certification": "Documentation",
             
+            // Monitoring keywords
             "monitoring": "Monitoring", "visit": "Monitoring", "site visit": "Monitoring", "follow up": "Monitoring",
             "follow-up": "Monitoring", "monitoring plan": "Monitoring", "site management": "Monitoring",
             "pre study": "Monitoring", "initiation": "Monitoring", "close out": "Monitoring",
             "site training": "Monitoring", "investigator": "Monitoring", "coordinator": "Monitoring", "staff": "Monitoring",
             
+            // Vendor Oversight keywords
             "vendor": "Vendor Oversight", "cro": "Vendor Oversight", "laboratory": "Vendor Oversight",
             "lab": "Vendor Oversight", "central lab": "Vendor Oversight", "supplier": "Vendor Oversight",
             "contract": "Vendor Oversight", "outsourced": "Vendor Oversight", "third party": "Vendor Oversight",
@@ -852,24 +991,28 @@ function classifyTask(description) {
         };
 
         const priorities = {
-            "sae": "Urgent", "susar": "Urgent", "serious": "Urgent", "death": "Urgent",
-            "life threatening": "Urgent", "hospitalization": "Urgent", "safety": "Urgent",
-            "deviation": "Urgent", "protocol deviation": "Urgent", "expedited": "Urgent",
+            // Urgent priority keywords
+            "sae": "high", "susar": "high", "serious": "high", "death": "high",
+            "life threatening": "high", "hospitalization": "high", "safety": "high",
+            "deviation": "high", "protocol deviation": "high", "expedited": "high",
             
-            "ecrf": "High", "crf": "High", "pi to sign": "High", "query": "High", "queries": "High",
-            "sdv": "High", "source data": "High", "sign": "High", "verification": "High",
-            "discrepancy": "High", "amendment": "High", "approval": "High", "consent": "High",
+            // High priority keywords
+            "ecrf": "high", "crf": "high", "pi to sign": "high", "query": "high", "queries": "high",
+            "sdv": "high", "source data": "high", "sign": "high", "verification": "high",
+            "discrepancy": "high", "amendment": "high", "approval": "high", "consent": "high",
             
-            "monitoring": "Medium", "visit": "Medium", "follow up": "Medium", "ib": "Medium",
-            "cv": "Medium", "training": "Medium", "shipment": "Medium", "shipping": "Medium",
-            "inventory": "Medium", "data": "Medium", "vendor": "Medium", "lab": "Medium", "meeting": "Medium",
+            // Medium priority keywords
+            "monitoring": "medium", "visit": "medium", "follow up": "medium", "ib": "medium",
+            "cv": "medium", "training": "medium", "shipment": "medium", "shipping": "medium",
+            "inventory": "medium", "data": "medium", "vendor": "medium", "lab": "medium", "meeting": "medium",
             
-            "newsletter": "Low", "report": "Low", "filing": "Low", "correspondence": "Low",
-            "email": "Low", "minutes": "Low", "communication": "Low", "update": "Low", "status": "Low"
+            // Low priority keywords
+            "newsletter": "low", "report": "low", "filing": "low", "correspondence": "low",
+            "email": "low", "minutes": "low", "communication": "low", "update": "low", "status": "low"
         };
 
         let matchedCategory = "Other";
-        let matchedPriority = "Low";
+        let matchedPriority = "low";
         const input = description.toLowerCase();
         
         // Check for exact phrase matches first
@@ -896,7 +1039,7 @@ function classifyTask(description) {
         for (const keyword in categories) {
             if (keyword.includes(' ')) continue;
             
-            const pattern = '\\b' + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\            "imp": "IMP Management", "ip":') + '\\b';
+            const pattern = '\\b' + keyword.replace(/[.*+?^${}()|[\\]\\]/g, '\\') + '\\b';
             const regex = new RegExp(pattern, 'i');
             if (regex.test(input)) {
                 matchedCategory = categories[keyword];
@@ -910,7 +1053,7 @@ function classifyTask(description) {
         return { category: matchedCategory, priority: matchedPriority };
     } catch (error) {
         console.error('Classification error:', error);
-        return { category: "Other", priority: "Low" };
+        return { category: "Other", priority: "low" };
     }
 }
 
@@ -939,7 +1082,7 @@ function addTask() {
             timeSpent = isNaN(parsed) ? 0 : parsed;
         }
         
-        const finalCategory = selectedCategory || classification.category || 'General';
+        const finalCategory = selectedCategory || classification.category || 'Other';
         const taskObject = {
             id: taskId,
             site: site,
@@ -1010,7 +1153,7 @@ function addToTaskList(task, displaySite) {
         
         const siteDisplay = displaySite === 'all' ? 'All Sites' : `Site ${task.site || 'Unknown'}`;
         const priorityLabel = task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Low';
-        const categoryLabel = task.category || 'General';
+        const categoryLabel = task.category || 'Other';
         
         const taskItem = document.createElement('div');
         taskItem.className = `task-item ${task.priority || 'low'}-priority`;
@@ -1197,7 +1340,7 @@ function editTask(button) {
         const details = taskItem.querySelector('.task-details');
         if (details) {
             const priorityLabel = foundTask.priority.charAt(0).toUpperCase() + foundTask.priority.slice(1);
-            const categoryLabel = foundTask.category || 'General';
+            const categoryLabel = foundTask.category || 'Other';
             const timeLabel = (foundTask.timeSpent && foundTask.timeSpent > 0) ? `${foundTask.timeSpent}h` : 'N/A';
             details.innerHTML = `<span>📂 Category: ${categoryLabel}</span><span>📅 Due: ${foundTask.dueDate || 'No deadline'}</span><span>⏱️ Time: ${timeLabel}</span><span>⚠️ Priority: ${priorityLabel}</span>`;
         }
@@ -1390,6 +1533,10 @@ function createSiteTabDynamic(siteNumber) {
 
 function deleteSite(siteNumber, tabElement) {
     try {
+        if (!confirm(`⚠️ Delete Site ${siteNumber} and all its tasks?`)) {
+            return;
+        }
+        
         delete siteData[siteNumber];
         
         const page = document.getElementById('site_' + siteNumber);
@@ -1512,7 +1659,7 @@ function addToSiteTaskList(task, siteNumber) {
         }
         
         const priorityLabel = task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Low';
-        const categoryLabel = task.category || 'General';
+        const categoryLabel = task.category || 'Other';
         const timeSpentDisplay = (task.timeSpent && task.timeSpent > 0) ? task.timeSpent + 'h' : 'N/A';
         const dueDateDisplay = task.dueDate || 'No deadline';
         
@@ -1668,12 +1815,13 @@ function processCommand() {
             return;
         }
 
+        // Handle visit date commands
         const visitRegex = /(\d{4}).*\b(next visit|last visit)\b/;
         const visitMatch = command.toLowerCase().match(visitRegex);
         if (visitMatch) {
             const site = visitMatch[1];
             const isNext = visitMatch[2] === 'next visit';
-            const dateMatch = command.match(/\b\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b/);
+            const dateMatch = command.match(/\b\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b/);
             const dateString = dateMatch ? dateMatch[0] : null;
             if (!dateString) {
                 showToast('Could not find a valid date in the command.');
@@ -1692,6 +1840,7 @@ function processCommand() {
             return;
         }
 
+        // Handle task creation commands
         const siteExtract = command.match(/\b(\d{4})\b/);
         if (!siteExtract) {
             showToast('Please specify a 4‑digit site number in your command.');
@@ -1709,7 +1858,7 @@ function processCommand() {
         
         const { category, priority } = classifyTask(description);
         let suggestedPriority = 'low';
-        if (priority.toLowerCase() === 'urgent') suggestedPriority = 'high';
+        if (priority.toLowerCase() === 'high') suggestedPriority = 'high';
         else if (priority.toLowerCase() === 'medium') suggestedPriority = 'medium';
         
         const accept = confirm(
@@ -1762,12 +1911,13 @@ function applySettings() {
         const craCountryEl = document.getElementById('craCountry');
         const teamCountryEl = document.getElementById('teamCountry');
         
-        const timeZone = timeZoneEl ? timeZoneEl.value.trim().toLowerCase() : '';
+        const timeZone = timeZoneEl ? timeZoneEl.value.trim() : '';
         const craCountry = craCountryEl ? craCountryEl.value || 'Sweden' : 'Sweden';
         const teamCountry = teamCountryEl ? teamCountryEl.value || 'Finland' : 'Finland';
         
         if (timeZone) {
-            currentTimeZone = timeZoneMap[timeZone] || timeZone;
+            // Check if it's a mapped timezone first, then use as-is
+            currentTimeZone = timeZoneMap[timeZone.toLowerCase()] || timeZone;
             updateTime();
         }
         
@@ -1985,10 +2135,12 @@ function saveTemplate() {
 
 function deleteTemplate(id) {
     try {
-        templatesData = templatesData.filter(t => t.id !== id);
-        renderTemplates();
-        saveData();
-        showToast('✅ Template deleted!');
+        if (confirm('⚠️ Delete this template?')) {
+            templatesData = templatesData.filter(t => t.id !== id);
+            renderTemplates();
+            saveData();
+            showToast('✅ Template deleted!');
+        }
     } catch (error) {
         console.error('Delete template error:', error);
         showToast('Error deleting template');
@@ -2003,6 +2155,7 @@ function useTemplate(id) {
             if (cmdInput) {
                 cmdInput.value = tmpl.content;
                 showToast(`Template "${tmpl.name}" inserted into the Smart Assistant input.`);
+                scrollToSmartAssistant();
             }
         }
     } catch (error) {
@@ -2051,7 +2204,7 @@ function renderHandover() {
         allTasks.forEach(task => {
             const prLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
             const timeLabel = (task.timeSpent && task.timeSpent > 0) ? task.timeSpent + 'h' : 'N/A';
-            html += `<tr><td style="padding:4px;">${task.site}</td><td style="padding:4px;">${task.description}</td><td style="padding:4px;">${task.category || 'General'}</td><td style="padding:4px;">${prLabel}</td><td style="padding:4px;">${task.dueDate || 'No deadline'}</td><td style="padding:4px;">${timeLabel}</td></tr>`;
+            html += `<tr><td style="padding:4px;">${task.site}</td><td style="padding:4px;">${task.description}</td><td style="padding:4px;">${task.category || 'Other'}</td><td style="padding:4px;">${prLabel}</td><td style="padding:4px;">${task.dueDate || 'No deadline'}</td><td style="padding:4px;">${timeLabel}</td></tr>`;
         });
         html += '</table>';
         container.innerHTML = html;
@@ -2088,7 +2241,7 @@ function generateHandover() {
         allTasks.forEach(task => {
             const prLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
             const timeLabel = (task.timeSpent && task.timeSpent > 0) ? task.timeSpent + 'h' : 'N/A';
-            html += `<tr><td>${task.site}</td><td>${task.description}</td><td>${task.category || 'General'}</td><td>${prLabel}</td><td>${task.dueDate || 'No deadline'}</td><td>${timeLabel}</td></tr>`;
+            html += `<tr><td>${task.site}</td><td>${task.description}</td><td>${task.category || 'Other'}</td><td>${prLabel}</td><td>${task.dueDate || 'No deadline'}</td><td>${timeLabel}</td></tr>`;
         });
         html += '</table></body></html>';
         
@@ -2140,13 +2293,19 @@ function updateMentalHealthStatus() {
 // ===== INITIALIZATION =====
 function initializeSystem() {
     try {
-        console.log('Initializing Clean CRA System...');
+        console.log('Initializing Enhanced CRA System v5...');
         
         // Load saved data but DON'T auto-create any sites
         loadData();
         
         // Remove any leftover static site markup from older versions
         removeLegacySiteElements();
+        
+        // Set timezone dropdown to current value
+        const timeZoneSelect = document.getElementById('timeZone');
+        if (timeZoneSelect && currentTimeZone) {
+            timeZoneSelect.value = currentTimeZone;
+        }
         
         // Only initialize sites that exist in saved data - don't create any new ones
         const savedSites = Object.keys(siteData || {});
@@ -2179,17 +2338,20 @@ function initializeSystem() {
         updateTime();
         setInterval(updateTime, 60000);
         
+        // Enhanced timezone change handler
         const timeZoneInput = document.getElementById('timeZone');
         if (timeZoneInput) {
-            timeZoneInput.addEventListener('input', function(e) {
+            timeZoneInput.addEventListener('change', function(e) {
                 try {
-                    const inputValue = e.target.value.trim().toLowerCase();
-                    if (inputValue) {
-                        currentTimeZone = timeZoneMap[inputValue] || inputValue;
+                    const selectedValue = e.target.value;
+                    if (selectedValue) {
+                        currentTimeZone = selectedValue;
                         updateTime();
+                        saveData();
+                        showToast(`✅ Timezone updated to ${selectedValue}`);
                     }
                 } catch (error) {
-                    console.error('Timezone input error:', error);
+                    console.error('Timezone change error:', error);
                 }
             });
         }
@@ -2207,15 +2369,17 @@ function initializeSystem() {
             });
         }
         
+        // Auto-save every 30 seconds
         setInterval(saveData, 30000);
 
+        // Auto-categorize tasks based on description
         const descInput = document.getElementById('task-description');
         const categorySelect = document.getElementById('task-category');
         if (descInput && categorySelect) {
             descInput.addEventListener('blur', function() {
                 try {
                     const text = descInput.value ? descInput.value.trim() : '';
-                    if (text) {
+                    if (text && categorySelect.value === '') {
                         const cls = classifyTask(text);
                         if (cls && cls.category) {
                             categorySelect.value = cls.category;
@@ -2227,9 +2391,11 @@ function initializeSystem() {
             });
         }
         
+        // Save data before page unload
         window.addEventListener('beforeunload', saveData);
         
-        console.log('Clean CRA System initialized successfully!');
+        console.log('Enhanced CRA System v5 initialized successfully!');
+        showToast('✅ System ready - enhanced with global timezone support!');
     } catch (error) {
         console.error('Initialization error:', error);
         // Still show a toast even if initialization fails
@@ -2267,8 +2433,10 @@ if (document.readyState === 'loading') {
     initializeSystem();
 }
 
+// Backup initialization
 setTimeout(initializeSystem, 1000);
 
+// Template button event binding
 document.addEventListener('DOMContentLoaded', function () {
     try {
         const saveBtn = document.getElementById('save-template-btn');
@@ -2283,7 +2451,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-console.log('Enhanced CRA Management System v4 - All Errors Fixed');
+console.log('Enhanced CRA Management System v5 - Error-Free with Global Timezone Support');
 </script>
 
 <footer style="text-align:center; font-size:12px; color:#888; margin-top:30px;">
